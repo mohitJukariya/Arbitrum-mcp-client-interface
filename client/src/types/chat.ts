@@ -1,10 +1,7 @@
-export interface Assistant {
+export interface User {
   id: 'alice' | 'bob' | 'charlie';
   name: string;
-  role: string;
-  description: string;
   avatar: string;
-  specialties: string[];
   status: 'online' | 'busy' | 'offline';
 }
 

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { Assistant, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity } from '@/types/chat';
+import { User, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity } from '@/types/chat';
 
 interface ChatStore {
-  // Selected assistant
-  selectedAssistant: Assistant | null;
-  setSelectedAssistant: (assistant: Assistant) => void;
+  // Selected user
+  selectedUser: User | null;
+  setSelectedUser: (user: User | null) => void;
 
   // Messages
   messages: ChatMessage[];
@@ -21,7 +21,7 @@ interface ChatStore {
   isTyping: boolean;
   setIsTyping: (typing: boolean) => void;
 
-  // Analytics data
+  // Analytics data (removed for simplicity)
   networkStats: NetworkStats | null;
   setNetworkStats: (stats: NetworkStats) => void;
   gasPrice: GasPrice | null;
@@ -30,46 +30,33 @@ interface ChatStore {
   setTopContracts: (contracts: TopContract[]) => void;
   whaleActivity: WhaleActivity[];
   setWhaleActivity: (activity: WhaleActivity[]) => void;
-
-  // UI state
-  isGraphPanelOpen: boolean;
-  setGraphPanelOpen: (open: boolean) => void;
 }
 
-export const assistants: Assistant[] = [
+export const users: User[] = [
   {
     id: 'alice',
     name: 'Alice',
-    role: 'Trading Assistant',
-    description: 'Gas prices & trading optimization',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-    specialties: ['gas prices', 'trading optimization', 'MEV protection', 'bridge fees'],
     status: 'online'
   },
   {
     id: 'bob',
     name: 'Bob',
-    role: 'Developer Assistant',
-    description: 'Contracts, debugging & ABIs',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-    specialties: ['contract interactions', 'debugging', 'ABIs', 'development tools'],
     status: 'online'
   },
   {
     id: 'charlie',
     name: 'Charlie',
-    role: 'Analytics Assistant',
-    description: 'Whale tracking & TX analysis',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-    specialties: ['whale tracking', 'transaction analysis', 'market trends', 'on-chain data'],
     status: 'online'
   }
 ];
 
 export const useChatStore = create<ChatStore>((set, get) => ({
-  // Selected assistant
-  selectedAssistant: assistants[0],
-  setSelectedAssistant: (assistant) => set({ selectedAssistant: assistant }),
+  // Selected user
+  selectedUser: null,
+  setSelectedUser: (user) => set({ selectedUser: user }),
 
   // Messages
   messages: [],
@@ -95,8 +82,4 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setTopContracts: (contracts) => set({ topContracts: contracts }),
   whaleActivity: [],
   setWhaleActivity: (activity) => set({ whaleActivity: activity }),
-
-  // UI state
-  isGraphPanelOpen: true,
-  setGraphPanelOpen: (open) => set({ isGraphPanelOpen: open }),
 }));

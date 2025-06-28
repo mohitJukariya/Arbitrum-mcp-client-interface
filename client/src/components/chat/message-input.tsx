@@ -13,7 +13,7 @@ export default function MessageInput() {
   const queryClient = useQueryClient();
   
   const { 
-    selectedAssistant, 
+    selectedUser, 
     currentSessionId, 
     setCurrentSessionId,
     addMessage, 
@@ -23,9 +23,9 @@ export default function MessageInput() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (messageText: string) => {
-      if (!selectedAssistant) throw new Error('No assistant selected');
+      if (!selectedUser) throw new Error('No user selected');
       
-      return chatApi.sendMessage(messageText, selectedAssistant.id, currentSessionId || undefined);
+      return chatApi.sendMessage(messageText, selectedUser.id, currentSessionId || undefined);
     },
     onMutate: async (messageText) => {
       // Add user message immediately
@@ -87,7 +87,7 @@ export default function MessageInput() {
   });
 
   const handleSendMessage = () => {
-    if (!message.trim() || !selectedAssistant || sendMessageMutation.isPending) return;
+    if (!message.trim() || !selectedUser || sendMessageMutation.isPending) return;
     
     const messageText = message.trim();
     setMessage('');
@@ -118,7 +118,7 @@ export default function MessageInput() {
     adjustTextareaHeight();
   }, [message]);
 
-  if (!selectedAssistant) return null;
+  if (!selectedUser) return null;
 
   return (
     <div 
@@ -133,7 +133,7 @@ export default function MessageInput() {
           <div className="relative">
             <Textarea
               ref={textareaRef}
-              placeholder={`Ask ${selectedAssistant.name} about ${selectedAssistant.specialties[0]}, ${selectedAssistant.specialties[1]}, or market analysis...`}
+              placeholder={`Ask the AI agent about blockchain analytics, gas prices, or market trends...`}
               className="resize-none pr-12 border transition-all focus:ring-2 focus:ring-offset-0"
               style={{ 
                 backgroundColor: 'hsl(var(--crypto-card))',
