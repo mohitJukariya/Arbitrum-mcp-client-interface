@@ -1,0 +1,143 @@
+# Arbitrum Analytics Chat Interface - Replit Recreation Prompt
+
+## 🎯 **PROJECT OVERVIEW**
+Create a modern, interactive Next.js 15 frontend application for an Arbitrum blockchain analytics chat system. This is a sophisticated chat interface that connects to a NestJS backend API and features AI-powered conversations with specialized blockchain assistants.
+
+## 🏗️ **CORE ARCHITECTURE**
+
+### **Frontend Stack**
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4 + Custom CSS
+- **State Management**: Zustand
+- **UI Components**: Radix UI + shadcn/ui
+- **Icons**: Lucide React
+- **Graph Visualization**: React Flow
+- **Charts**: Recharts (for future features)
+
+### **Backend Integration**
+- **API Base URL**: `http://localhost:3000/api`
+- **WebSocket URL**: `ws://localhost:3000`
+- **Backend Type**: NestJS with MCP (Model Context Protocol)
+- **Data Storage**: Redis, Pinecone Vector DB, Neo4j Graph DB
+- **AI Model**: Microsoft DialoGPT-medium
+
+## 🚀 **KEY FEATURES TO IMPLEMENT**
+
+### **1. Multi-User Chat System**
+Create 3 specialized AI assistants:
+- **Alice (Trader)** 👩‍💼 - Focuses on gas prices and trading optimization
+- **Bob (Developer)** 👨‍💻 - Contract interactions, debugging, and ABIs  
+- **Charlie (Analyst)** 👨‍🔬 - Whale tracking and transaction analysis
+
+
+## 🔌 **API INTEGRATION DETAILS**
+
+### **Required API Endpoints**
+```typescript
+// Chat Operations
+POST /api/chat - Send message with userId and optional sessionId
+GET /api/chat/history/:sessionId - Get conversation history
+
+// Graph Visualization  
+GET /api/context/graph/visualization/:userId - User-specific graph
+GET /api/context/graph/visualization - Global graph
+
+// Search & Context
+POST /api/embeddings/search - Search similar conversations
+GET /api/embeddings/context/:query - Get session context
+
+// System Health
+GET /api/health - Health check
+```
+
+### **API Response Formats**
+```typescript
+// Chat Response
+interface ChatResponse {
+  response: string;
+  toolsUsed: string[];
+  sessionId: string;
+  confidence: number;
+  metadata: {
+    contextUsed: boolean;
+    fallbackLevel: string;
+  };
+}
+
+// Message Format
+interface Message {
+  id: string;
+  content: string;
+  messageType: 'user' | 'assistant';
+  timestamp: string;
+  toolsUsed?: string[];
+  confidence?: number;
+  metadata?: {
+    contextUsed: boolean;
+    fallbackLevel: string;
+  };
+}
+```
+
+## 🔧 **IMPLEMENTATION STEPS**
+
+### **2. Environment Configuration**
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
+NEXT_PUBLIC_WS_URL=ws://localhost:3000
+```
+
+### **3. Zustand Store Setup**
+Create a centralized state manager for:
+- Selected user (Alice/Bob/Charlie)
+- Messages array
+- Current session ID
+- Loading states
+- Graph data
+- Clear chat functionality
+
+### **4. API Service Implementation**
+- Error handling with fallback responses
+- JSON validation for all responses  
+- Retry logic for failed requests
+- Loading state management
+
+### **5. Component Development Priority**
+1. Basic layout and routing
+2. User selector with animations
+3. Chat interface with message display
+4. Message input and sending
+5. Graph visualization integration
+6. Enhanced UI animations and effects
+
+## 🔌 **Backend Communication**
+
+### **Expected Backend Behavior**
+- **NestJS** server running on `localhost:3000`
+- **MCP Integration** for Arbitrum blockchain tools
+- **Multi-storage** system (Redis, Pinecone, Neo4j)
+- **Session management** with conversation history
+- **Tool usage tracking** for blockchain operations
+
+### **Fallback Handling**
+When backend is unavailable:
+- Display fallback messages for chat
+- Show empty states for graphs
+- Maintain UI functionality
+- Graceful error messages
+- Retry mechanisms
+
+## 🚀 **Final Notes**
+
+This application should feel like a premium, professional blockchain analytics tool with smooth animations, intuitive navigation, and robust error handling. The focus is on creating an engaging user experience for interacting with AI assistants specialized in Arbitrum blockchain analysis.
+
+**Key Success Metrics:**
+- Smooth 60fps animations
+- < 2s initial load time
+- Responsive design on all devices  
+- Graceful backend error handling
+- Intuitive user flow for chat interactions
+- Professional, modern visual design
+
+The result should be a sophisticated chat interface that demonstrates modern React/Next.js best practices while providing a delightful user experience for blockchain analytics workflows.
