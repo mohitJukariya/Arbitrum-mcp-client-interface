@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { User, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity } from '@/types/chat';
+import { wsManager } from '@/lib/websocket';
 
 interface ChatStore {
   // Selected user
@@ -20,6 +21,11 @@ interface ChatStore {
   setIsLoading: (loading: boolean) => void;
   isTyping: boolean;
   setIsTyping: (typing: boolean) => void;
+
+  // WebSocket connection
+  isConnected: boolean;
+  setIsConnected: (connected: boolean) => void;
+  initializeWebSocket: () => void;
 
   // Analytics data (removed for simplicity)
   networkStats: NetworkStats | null;
@@ -72,6 +78,38 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
   isTyping: false,
   setIsTyping: (typing) => set({ isTyping: typing }),
+
+  // WebSocket connection
+  isConnected: false,
+  setIsConnected: (connected) => set({ isConnected: connected }),
+  initializeWebSocket: () => {
+    wsManager.connect()
+      .then(() => {
+        set({ isConnected: true });
+        
+        // Set up message handlers
+        wsManager.onMessage('chat_response', (data) => {
+          get().addMessage({
+            id: Date.now().toString(),
+            content: data.response,
+            messageType: 'assistant',
+            timestamp: new Date().toISOString(),
+            toolsUsed: data.toolsUsed || [],
+            confidence: data.confidence || 0.8,
+            metadata: data.metadata
+          });
+          get().setIsTyping(false);
+        });
+
+        wsManager.onMessage('typing_indicator', (data) => {
+          get().setIsTyping(data.isTyping);
+        });
+      })
+      .catch((error) => {
+        console.error('Failed to connect to WebSocket:', error);
+        set({ isConnected: false });
+      });
+  },
 
   // Analytics data
   networkStats: null,

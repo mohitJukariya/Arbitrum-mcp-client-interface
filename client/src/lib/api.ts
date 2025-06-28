@@ -1,6 +1,6 @@
 import { ChatResponse, NetworkStats, GasPrice, TopContract, WhaleActivity } from '@/types/chat';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {

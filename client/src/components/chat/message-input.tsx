@@ -4,7 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { chatApi } from '@/lib/api';
-import { Send } from 'lucide-react';
+import { wsManager } from '@/lib/websocket';
+import { Send, Wifi, WifiOff } from 'lucide-react';
 import { nanoid } from 'nanoid';
 
 export default function MessageInput() {
@@ -18,7 +19,8 @@ export default function MessageInput() {
     setCurrentSessionId,
     addMessage, 
     setIsTyping,
-    messages
+    messages,
+    isConnected
   } = useChatStore();
 
   const sendMessageMutation = useMutation({
@@ -96,8 +98,28 @@ export default function MessageInput() {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-    
-    sendMessageMutation.mutate(messageText);
+
+    // Add user message immediately
+    const userMessage = {
+      id: nanoid(),
+      content: messageText,
+      messageType: 'user' as const,
+      timestamp: new Date().toISOString(),
+    };
+    addMessage(userMessage);
+
+    // Try WebSocket first, fallback to HTTP
+    if (isConnected && wsManager.isConnected) {
+      wsManager.send('chat_message', {
+        message: messageText,
+        userId: selectedUser.id,
+        sessionId: currentSessionId
+      });
+      setIsTyping(true);
+    } else {
+      // Fallback to HTTP API
+      sendMessageMutation.mutate(messageText);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -131,6 +153,21 @@ export default function MessageInput() {
       <div className="flex items-end space-x-4">
         <div className="flex-1">
           <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {isConnected ? (
+                  <>
+                    <Wifi className="h-3 w-3 text-green-500" />
+                    <span>Connected to NestJS backend</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="h-3 w-3 text-orange-500" />
+                    <span>Using HTTP fallback</span>
+                  </>
+                )}
+              </div>
+            </div>
             <Textarea
               ref={textareaRef}
               placeholder={`Ask the AI agent about blockchain analytics, gas prices, or market trends...`}

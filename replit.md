@@ -15,11 +15,13 @@ This is a modern React-based chat interface for Arbitrum blockchain analytics, f
 - **Routing**: Wouter for lightweight client-side routing
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.js framework
+- **Runtime**: NestJS backend with MCP (Model Context Protocol)
+- **API Base URL**: `http://localhost:3000/api`
+- **WebSocket URL**: `ws://localhost:3000`
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Database Provider**: Neon Database (serverless PostgreSQL)
 - **Session Management**: In-memory storage with plans for PostgreSQL persistence
-- **API Design**: RESTful endpoints with real-time capabilities
+- **API Design**: RESTful endpoints with real-time WebSocket capabilities
 
 ### Build and Development
 - **Build Tool**: Vite for fast development and optimized production builds
@@ -107,7 +109,9 @@ Three specialized AI personas provide domain-specific expertise:
 - Database: Serverless PostgreSQL via Neon with environment-based connection strings
 
 ## Changelog
-- June 28, 2025. Initial setup
+- June 28, 2025: Initial setup with complex analytics interface
+- June 28, 2025: Simplified to two-page chat app with user selection
+- June 28, 2025: Integrated NestJS backend with WebSocket support and HTTP fallback
 
 ## User Preferences
 
