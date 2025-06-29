@@ -1,8 +1,15 @@
+/* Main Tailwind CSS imports */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Light theme (base shadcn colors) */
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);
   --muted: hsl(60, 4.8%, 95.9%);
@@ -22,18 +29,23 @@
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  /* Crypto theme colors */
-  --crypto-dark: hsl(240, 32%, 9%);
-  --crypto-surface: hsl(245, 58%, 11%);
-  --crypto-card: hsl(248, 47%, 17%);
-  --crypto-border: hsl(252, 56%, 29%);
-  --crypto-primary: hsl(245, 83%, 67%);
-  --crypto-secondary: hsl(262, 83%, 69%);
-  --crypto-accent: hsl(160, 84%, 39%);
+  /* Enhanced Crypto dark theme colors */
+  --crypto-dark: hsl(222, 47%, 4%);
+  --crypto-surface: hsl(223, 47%, 7%);
+  --crypto-card: hsl(224, 39%, 12%);
+  --crypto-border: hsl(225, 39%, 20%);
+  --crypto-primary: hsl(217, 91%, 60%);
+  --crypto-secondary: hsl(262, 83%, 58%);
+  --crypto-accent: hsl(142, 70%, 45%);
   --crypto-warning: hsl(38, 92%, 50%);
   --crypto-error: hsl(0, 72%, 51%);
+  
+  /* Text colors */
+  --crypto-text-primary: hsl(210, 40%, 98%);
+  --crypto-text-secondary: hsl(215, 25%, 75%);
+  --crypto-text-muted: hsl(215, 20%, 55%);
 }
 
 .dark {
@@ -61,12 +73,52 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--crypto-border));
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background: linear-gradient(135deg, hsl(var(--crypto-dark)) 0%, hsl(var(--crypto-surface)) 100%);
+    color: hsl(var(--crypto-text-primary));
+    line-height: 1.6;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    color: hsl(var(--crypto-text-primary));
+  }
+
+  h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 1.875rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: hsl(var(--crypto-text-secondary));
+    line-height: 1.7;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.875rem;
+    background-color: hsl(var(--crypto-surface));
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
   }
 
   .crypto-dark {
@@ -144,5 +196,44 @@
     50% {
       opacity: 1;
     }
+  }
+
+  /* Enhanced crypto gradient effects */
+  .crypto-gradient {
+    background: linear-gradient(135deg, hsl(var(--crypto-primary)), hsl(var(--crypto-secondary)));
+  }
+
+  .crypto-gradient-text {
+    background: linear-gradient(135deg, hsl(var(--crypto-primary)), hsl(var(--crypto-secondary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .crypto-glow {
+    box-shadow: 0 0 20px hsla(var(--crypto-primary), 0.3);
+  }
+
+  .crypto-card-hover {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .crypto-card-hover:hover {
+    background-color: hsl(var(--crypto-surface));
+    box-shadow: 0 8px 25px hsla(var(--crypto-primary), 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Text utilities */
+  .text-crypto-primary {
+    color: hsl(var(--crypto-text-primary));
+  }
+
+  .text-crypto-secondary {
+    color: hsl(var(--crypto-text-secondary));
+  }
+
+  .text-crypto-muted {
+    color: hsl(var(--crypto-text-muted));
   }
 }

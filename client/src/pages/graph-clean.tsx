@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import GraphVisualization from "@/components/ui/graph-visualization";
-import LoadingSkeleton from "@/components/ui/loading-skeleton";
 import { GraphNode } from "@/types/chat";
 
 export default function GraphPage() {
@@ -172,7 +171,12 @@ export default function GraphPage() {
                 </CardHeader>
                 <CardContent className="p-6">
                   {loadingGraph ? (
-                    <LoadingSkeleton type="graph" count={1} />
+                    <div className="w-full h-96 flex items-center justify-center">
+                      <div className="text-center">
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-crypto-primary" />
+                        <p className="text-slate-400">Loading graph data...</p>
+                      </div>
+                    </div>
                   ) : graphData ? (
                     <div className="relative">
                       <GraphVisualization

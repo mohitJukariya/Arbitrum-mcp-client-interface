@@ -1,56 +1,102 @@
-import { useChatStore, users } from '@/stores/chat-store';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { useChatStore, users } from "@/stores/chat-store";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { memo } from "react";
 
-export default function UserSelection() {
+const UserSelection = memo(() => {
   const { setSelectedUser } = useChatStore();
 
   return (
-    <div className="w-full flex items-center justify-center min-h-screen">
-      <div className="max-w-2xl w-full p-6">
-        <div className="text-center mb-8">
-          <div 
-            className="w-16 h-16 rounded-xl mx-auto mb-4 flex items-center justify-center bg-gradient-to-r"
-            style={{ 
-              background: 'linear-gradient(135deg, hsl(var(--crypto-primary)), hsl(var(--crypto-secondary)))'
-            }}
-          >
-            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
-              <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+    <div
+      className="w-full flex items-center justify-center min-h-screen"
+      style={{ backgroundColor: "hsl(var(--crypto-dark))" }}
+    >
+      <div className="max-w-4xl w-full p-8">
+        <div className="text-center mb-12">
+          <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center crypto-gradient crypto-glow">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Arbitrum Analytics</h1>
-          <p className="text-slate-400">Select your user profile to start chatting with our AI agent</p>
+          <h1
+            id="user-selection-title"
+            className="text-4xl font-bold mb-4 crypto-gradient-text"
+          >
+            Arbitrum Analytics
+          </h1>
+          <p className="text-xl text-crypto-secondary max-w-2xl mx-auto leading-relaxed">
+            Select your user profile to start exploring blockchain analytics
+            with our AI-powered assistant
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          role="radiogroup"
+          aria-labelledby="user-selection-title"
+        >
           {users.map((user) => (
             <Card
               key={user.id}
-              className="cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg"
+              className="cursor-pointer crypto-card-hover focus:outline-none focus:ring-2 focus:ring-crypto-primary focus:ring-offset-2 focus:ring-offset-crypto-dark border-2"
               style={{
-                backgroundColor: 'hsl(var(--crypto-card))',
-                borderColor: 'hsl(var(--crypto-border))'
+                backgroundColor: "hsl(var(--crypto-card))",
+                borderColor: "hsl(var(--crypto-border))",
               }}
               onClick={() => setSelectedUser(user)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedUser(user);
+                }
+              }}
+              tabIndex={0}
+              role="radio"
+              aria-checked="false"
+              aria-labelledby={`user-${user.id}-name`}
+              aria-describedby={`user-${user.id}-description`}
             >
-              <CardContent className="p-6 text-center">
-                <Avatar className="w-20 h-20 mx-auto mb-4">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="text-lg">{user.name[0]}</AvatarFallback>
+              <CardContent className="p-8 text-center">
+                <Avatar className="w-24 h-24 mx-auto mb-6 ring-2 ring-crypto-primary/20">
+                  <AvatarImage
+                    src={user.avatar}
+                    alt={`${user.name} profile picture`}
+                  />
+                  <AvatarFallback className="text-xl font-semibold crypto-gradient text-white">
+                    {user.name[0]}
+                  </AvatarFallback>
                 </Avatar>
-                <h3 className="text-xl font-semibold text-white mb-2">{user.name}</h3>
-                <Badge 
+                <h3
+                  id={`user-${user.id}-name`}
+                  className="text-xl font-semibold text-crypto-primary mb-3"
+                >
+                  {user.name}
+                </h3>
+                {user.description && (
+                  <p
+                    id={`user-${user.id}-description`}
+                    className="text-sm text-slate-400 mb-3"
+                  >
+                    {user.description}
+                  </p>
+                )}
+                <Badge
                   variant="secondary"
+                  aria-label={`Status: ${user.status}`}
                   style={{
-                    backgroundColor: user.status === 'online' 
-                      ? 'hsla(var(--crypto-accent), 0.2)' 
-                      : 'hsla(var(--slate-500), 0.2)',
-                    color: user.status === 'online' 
-                      ? 'hsl(var(--crypto-accent))' 
-                      : 'hsl(var(--slate-400))'
+                    backgroundColor:
+                      user.status === "online"
+                        ? "hsla(var(--crypto-accent), 0.2)"
+                        : "hsla(var(--slate-500), 0.2)",
+                    color:
+                      user.status === "online"
+                        ? "hsl(var(--crypto-accent))"
+                        : "hsl(var(--slate-400))",
                   }}
                 >
                   {user.status}
@@ -68,4 +114,8 @@ export default function UserSelection() {
       </div>
     </div>
   );
-}
+});
+
+UserSelection.displayName = "UserSelection";
+
+export default UserSelection;

@@ -1,0 +1,80 @@
+/* Force dark text visibility for assistant messages */
+.chat-message-content {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+  background: transparent !important;
+}
+
+.chat-message-content * {
+  color: #000000 !important;
+}
+
+/* Ensure card backgrounds are light */
+.chat-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* User message styling - ensure BLACK text is visible */
+.user-message-content {
+  color: #000000 !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.user-message-content * {
+  color: #000000 !important;
+}
+
+/* User message card styling */
+.user-message-card {
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tool display styling */
+.tool-display {
+  background-color: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  color: #374151 !important;
+}
+
+.tool-display * {
+  color: #374151 !important;
+}
+
+/* General text visibility fixes */
+.message-timestamp {
+  color: #374151 !important;
+  font-weight: 600 !important;
+}
+
+.message-sender {
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+/* Input styling */
+textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+textarea {
+  color: #111827 !important;
+  background-color: #ffffff !important;
+}
+
+/* Ensure all text in cards is dark */
+.card-content {
+  color: #111827 !important;
+}
+
+.card-content * {
+  color: inherit !important;
+}

@@ -3,8 +3,9 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useChatStore } from "@/stores/chat-store";
-import { useEffect } from "react";
+import ErrorBoundary from "@/components/ui/error-boundary";
+import useKeyboardShortcuts from "@/hooks/use-keyboard-shortcuts";
+import { useNotifications } from "@/hooks/use-notifications";
 import ChatPage from "@/pages/chat";
 import GraphPage from "@/pages/graph";
 import NotFound from "@/pages/not-found";
@@ -20,22 +21,21 @@ function Router() {
 }
 
 function App() {
-  const initializeWebSocket = useChatStore((state) => state.initializeWebSocket);
-
-  useEffect(() => {
-    // Initialize WebSocket connection when app starts
-    initializeWebSocket();
-  }, [initializeWebSocket]);
+  // Initialize custom hooks
+  useKeyboardShortcuts();
+  useNotifications();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="dark">
-          <Toaster />
-          <Router />
-        </div>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div className="dark">
+            <Toaster />
+            <Router />
+          </div>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

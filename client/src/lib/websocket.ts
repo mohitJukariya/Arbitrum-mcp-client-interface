@@ -6,8 +6,9 @@ export class WebSocketManager {
   private reconnectDelay = 1000;
   private messageHandlers: Map<string, (data: any) => void> = new Map();
 
-  constructor(url: string = 'ws://localhost:3000') {
+  constructor(url: string = import.meta.env.VITE_WS_URL || 'wss://mcpclient-production.up.railway.app') {
     this.url = url;
+    console.log('WebSocket manager initialized with URL:', url);
   }
 
   connect(): Promise<void> {
@@ -39,7 +40,7 @@ export class WebSocketManager {
         };
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.log('WebSocket connection failed, will use HTTP fallback');
           reject(error);
         };
       } catch (error) {
@@ -52,7 +53,7 @@ export class WebSocketManager {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
+
       setTimeout(() => {
         this.connect().catch(console.error);
       }, this.reconnectDelay * this.reconnectAttempts);

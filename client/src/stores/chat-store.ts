@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { User, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity } from '@/types/chat';
-import { wsManager } from '@/lib/websocket';
+import { User, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphInsights } from '@/types/chat';
+import { contextApi } from '@/lib/api';
 
 interface ChatStore {
   // Selected user
@@ -22,11 +22,6 @@ interface ChatStore {
   isTyping: boolean;
   setIsTyping: (typing: boolean) => void;
 
-  // WebSocket connection
-  isConnected: boolean;
-  setIsConnected: (connected: boolean) => void;
-  initializeWebSocket: () => void;
-
   // Analytics data (removed for simplicity)
   networkStats: NetworkStats | null;
   setNetworkStats: (stats: NetworkStats) => void;
@@ -36,26 +31,45 @@ interface ChatStore {
   setTopContracts: (contracts: TopContract[]) => void;
   whaleActivity: WhaleActivity[];
   setWhaleActivity: (activity: WhaleActivity[]) => void;
+
+  // Graph visualization
+  graphData: GraphVisualization | null;
+  setGraphData: (data: GraphVisualization) => void;
+  graphInsights: GraphInsights | null;
+  setGraphInsights: (insights: GraphInsights) => void;
+  loadingGraph: boolean;
+  setLoadingGraph: (loading: boolean) => void;
+
+  // Graph panel visibility
+  graphPanelOpen: boolean;
+  setGraphPanelOpen: (open: boolean) => void;
+
+  // Actions
+  loadUserGraph: (userId: string) => Promise<void>;
+  loadGlobalGraph: () => Promise<void>;
 }
 
 export const users: User[] = [
   {
-    id: 'alice',
-    name: 'Alice',
+    id: 'user-001',
+    name: 'Alice (Trader)',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-    status: 'online'
+    status: 'online',
+    description: 'Focuses on gas prices, trading optimization'
   },
   {
-    id: 'bob',
-    name: 'Bob',
+    id: 'user-002',
+    name: 'Bob (Developer)',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-    status: 'online'
+    status: 'online',
+    description: 'Contract interactions, debugging, ABIs'
   },
   {
-    id: 'charlie',
-    name: 'Charlie',
+    id: 'user-003',
+    name: 'Charlie (Analyst)',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-    status: 'online'
+    status: 'online',
+    description: 'Whale tracking, transaction analysis'
   }
 ];
 
@@ -66,7 +80,22 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Messages
   messages: [],
-  addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
+  addMessage: (message) => set((state) => {
+    // Check if message already exists to prevent duplicates
+    const messageExists = state.messages.some(existingMessage =>
+      existingMessage.id === message.id ||
+      (existingMessage.content === message.content &&
+        existingMessage.messageType === message.messageType &&
+        Math.abs(new Date(existingMessage.timestamp).getTime() - new Date(message.timestamp).getTime()) < 1000)
+    );
+
+    if (messageExists) {
+      console.log('Duplicate message prevented:', message.content.substring(0, 50));
+      return state;
+    }
+
+    return { messages: [...state.messages, message] };
+  }),
   clearMessages: () => set({ messages: [], currentSessionId: null }),
 
   // Session
@@ -79,38 +108,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   isTyping: false,
   setIsTyping: (typing) => set({ isTyping: typing }),
 
-  // WebSocket connection
-  isConnected: false,
-  setIsConnected: (connected) => set({ isConnected: connected }),
-  initializeWebSocket: () => {
-    wsManager.connect()
-      .then(() => {
-        set({ isConnected: true });
-        
-        // Set up message handlers
-        wsManager.onMessage('chat_response', (data) => {
-          get().addMessage({
-            id: Date.now().toString(),
-            content: data.response,
-            messageType: 'assistant',
-            timestamp: new Date().toISOString(),
-            toolsUsed: data.toolsUsed || [],
-            confidence: data.confidence || 0.8,
-            metadata: data.metadata
-          });
-          get().setIsTyping(false);
-        });
-
-        wsManager.onMessage('typing_indicator', (data) => {
-          get().setIsTyping(data.isTyping);
-        });
-      })
-      .catch((error) => {
-        console.error('Failed to connect to WebSocket:', error);
-        set({ isConnected: false });
-      });
-  },
-
   // Analytics data
   networkStats: null,
   setNetworkStats: (stats) => set({ networkStats: stats }),
@@ -120,4 +117,42 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setTopContracts: (contracts) => set({ topContracts: contracts }),
   whaleActivity: [],
   setWhaleActivity: (activity) => set({ whaleActivity: activity }),
+
+  // Graph visualization
+  graphData: null,
+  setGraphData: (data) => set({ graphData: data }),
+  graphInsights: null,
+  setGraphInsights: (insights) => set({ graphInsights: insights }),
+  loadingGraph: false,
+  setLoadingGraph: (loading) => set({ loadingGraph: loading }),
+  graphPanelOpen: false,
+  setGraphPanelOpen: (open) => set({ graphPanelOpen: open }),
+
+  // Graph actions
+  loadUserGraph: async (userId: string) => {
+    set({ loadingGraph: true });
+    try {
+      const [graphData, insights] = await Promise.all([
+        contextApi.getGraphVisualization(userId),
+        contextApi.getGraphInsights(userId)
+      ]);
+      set({ graphData, graphInsights: insights });
+    } catch (error) {
+      console.error('Failed to load user graph:', error);
+    } finally {
+      set({ loadingGraph: false });
+    }
+  },
+
+  loadGlobalGraph: async () => {
+    set({ loadingGraph: true });
+    try {
+      const graphData = await contextApi.getGraphVisualization();
+      set({ graphData });
+    } catch (error) {
+      console.error('Failed to load global graph:', error);
+    } finally {
+      set({ loadingGraph: false });
+    }
+  },
 }));
