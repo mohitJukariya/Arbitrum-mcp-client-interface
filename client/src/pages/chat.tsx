@@ -7,7 +7,8 @@ import { useChatStore } from "@/stores/chat-store";
 import { UserPersonality } from "@/types/chat";
 
 export default function ChatPage() {
-  const { selectedUser, selectedPersonality, setSelectedPersonality } = useChatStore();
+  const { selectedUser, selectedPersonality, setSelectedPersonality } =
+    useChatStore();
 
   const handlePersonalitySelect = (personality: UserPersonality) => {
     setSelectedPersonality(personality);

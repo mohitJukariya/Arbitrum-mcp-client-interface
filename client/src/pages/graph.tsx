@@ -68,7 +68,9 @@ export default function GraphPage() {
           }}
         >
           <CardContent className="p-6 text-center">
-            <p className="text-slate-400 mb-4">Please select an assistant first</p>
+            <p className="text-slate-400 mb-4">
+              Please select an assistant first
+            </p>
             <Link href="/">
               <Button>Go to Chat</Button>
             </Link>
@@ -116,7 +118,9 @@ export default function GraphPage() {
                   Context Graph
                 </h1>
                 <p className="text-sm text-slate-400">
-                  {selectedPersonality ? selectedPersonality.title : 'Conversation relationships and insights'}
+                  {selectedPersonality
+                    ? selectedPersonality.title
+                    : "Conversation relationships and insights"}
                 </p>
               </div>
             </div>

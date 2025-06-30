@@ -181,10 +181,14 @@ Please check that the backend is running properly. In the meantime, the frontend
           {(selectedPersonality || selectedUser) && (
             <div className="flex items-center space-x-2 text-xs">
               <span style={{ color: "#374151", fontWeight: "600" }}>
-                Chatting with {selectedPersonality ? selectedPersonality.name : selectedUser?.name}
+                Chatting with{" "}
+                {selectedPersonality
+                  ? selectedPersonality.name
+                  : selectedUser?.name}
                 {selectedPersonality && (
                   <span style={{ color: "#6b7280", fontWeight: "400" }}>
-                    {" "}• {selectedPersonality.title}
+                    {" "}
+                    • {selectedPersonality.title}
                   </span>
                 )}
               </span>

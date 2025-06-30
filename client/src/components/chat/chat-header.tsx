@@ -9,31 +9,31 @@ import ToolsGuide from "./tools-guide";
 import { useState } from "react";
 
 export default function ChatHeader() {
-  const { 
-    selectedUser, 
+  const {
+    selectedUser,
     selectedPersonality,
-    isTyping, 
+    isTyping,
     setSelectedUser,
-    setSelectedPersonality 
+    setSelectedPersonality,
   } = useChatStore();
 
   const [showToolsGuide, setShowToolsGuide] = useState(false);
 
   // Use personality if available, fallback to user for backward compatibility
   const currentProfile = selectedPersonality || selectedUser;
-  
+
   if (!currentProfile) return null;
 
   const getPersonalityColor = (personalityId?: string) => {
     switch (personalityId) {
-      case 'alice':
-        return '#3b82f6'; // Blue
-      case 'bob':
-        return '#059669'; // Green
-      case 'charlie':
-        return '#dc2626'; // Red
+      case "alice":
+        return "#3b82f6"; // Blue
+      case "bob":
+        return "#059669"; // Green
+      case "charlie":
+        return "#dc2626"; // Red
       default:
-        return 'hsl(var(--crypto-primary))';
+        return "hsl(var(--crypto-primary))";
     }
   };
 
@@ -56,11 +56,13 @@ export default function ChatHeader() {
         <div className="flex items-center space-x-4">
           <Avatar
             className="w-12 h-12 ring-2 ring-offset-2 ring-offset-transparent"
-            style={{ 
-              "--tw-ring-color": selectedPersonality 
-                ? getPersonalityColor(selectedPersonality.id)
-                : "hsl(var(--crypto-primary))" 
-            } as React.CSSProperties}
+            style={
+              {
+                "--tw-ring-color": selectedPersonality
+                  ? getPersonalityColor(selectedPersonality.id)
+                  : "hsl(var(--crypto-primary))",
+              } as React.CSSProperties
+            }
           >
             <AvatarImage
               src={currentProfile.avatar}
@@ -70,7 +72,7 @@ export default function ChatHeader() {
             <AvatarFallback
               className="font-semibold text-lg"
               style={{
-                backgroundColor: selectedPersonality 
+                backgroundColor: selectedPersonality
                   ? getPersonalityColor(selectedPersonality.id)
                   : "hsl(var(--crypto-primary))",
                 color: "white",
@@ -85,12 +87,14 @@ export default function ChatHeader() {
             </h2>
             <div className="flex items-center space-x-2 mt-1">
               {selectedPersonality && (
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className="text-xs"
-                  style={{ 
-                    backgroundColor: `${getPersonalityColor(selectedPersonality.id)}20`,
-                    color: getPersonalityColor(selectedPersonality.id)
+                  style={{
+                    backgroundColor: `${getPersonalityColor(
+                      selectedPersonality.id
+                    )}20`,
+                    color: getPersonalityColor(selectedPersonality.id),
                   }}
                 >
                   {selectedPersonality.title}
@@ -133,7 +137,7 @@ export default function ChatHeader() {
                   {selectedPersonality ? (
                     <>AI Assistant • {selectedPersonality.focusAreas}</>
                   ) : (
-                    'Connected to AI agent'
+                    "Connected to AI agent"
                   )}
                 </span>
               )}
@@ -169,12 +173,15 @@ export default function ChatHeader() {
             onClick={handleSwitchPersonality}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            {selectedPersonality ? 'Switch Assistant' : 'Switch User'}
+            {selectedPersonality ? "Switch Assistant" : "Switch User"}
           </Button>
         </div>
       </div>
 
-      <ToolsGuide isOpen={showToolsGuide} onClose={() => setShowToolsGuide(false)} />
+      <ToolsGuide
+        isOpen={showToolsGuide}
+        onClose={() => setShowToolsGuide(false)}
+      />
     </div>
   );
 }

@@ -47,12 +47,12 @@ export const chatApi = {
     try {
       console.log('Sending chat message:', { message, userId, sessionId, personalityId });
       const requestBody: any = { message };
-      
+
       // Add optional parameters
       if (sessionId) requestBody.sessionId = sessionId;
       if (userId) requestBody.userId = userId;
       if (personalityId) requestBody.personalityId = personalityId;
-      
+
       const response = await apiRequest<any>('/api/chat', {
         method: 'POST',
         body: JSON.stringify(requestBody),

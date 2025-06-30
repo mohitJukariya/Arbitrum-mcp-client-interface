@@ -3,22 +3,26 @@ import { createPortal } from "react-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Wallet, 
-  Receipt, 
-  Blocks, 
-  Fuel, 
-  Shield, 
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  ChevronDown,
+  ChevronRight,
+  Wallet,
+  Receipt,
+  Blocks,
+  Fuel,
+  Shield,
   Coins,
   FileText,
   Activity,
   Info,
   X,
   Copy,
-  Check
+  Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,27 +47,27 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "What's the ETH balance of 0x1234...?",
-    icon: <Wallet className="w-4 h-4" />
+    icon: <Wallet className="w-4 h-4" />,
   },
   {
     id: 2,
-    name: "getTokenBalance", 
+    name: "getTokenBalance",
     description: "Get token balance for a specific contract",
     category: "Balance & Wallet",
     requiredParams: ["contractAddress", "address"],
     optionalParams: [],
     example: "Check USDC balance for address 0x1234...",
-    icon: <Coins className="w-4 h-4" />
+    icon: <Coins className="w-4 h-4" />,
   },
   {
     id: 12,
     name: "getMultiBalance",
     description: "Get ETH balances for multiple addresses at once",
-    category: "Balance & Wallet", 
+    category: "Balance & Wallet",
     requiredParams: ["addresses array"],
     optionalParams: [],
     example: "Get balances for these 5 addresses: 0x1234..., 0x5678...",
-    icon: <Wallet className="w-4 h-4" />
+    icon: <Wallet className="w-4 h-4" />,
   },
 
   // Transaction Tools
@@ -75,7 +79,7 @@ const tools: Tool[] = [
     requiredParams: ["txHash"],
     optionalParams: [],
     example: "Show details for transaction 0xabc123...",
-    icon: <Receipt className="w-4 h-4" />
+    icon: <Receipt className="w-4 h-4" />,
   },
   {
     id: 4,
@@ -85,7 +89,7 @@ const tools: Tool[] = [
     requiredParams: ["txHash"],
     optionalParams: [],
     example: "Get receipt for tx 0xabc123...",
-    icon: <Receipt className="w-4 h-4" />
+    icon: <Receipt className="w-4 h-4" />,
   },
   {
     id: 7,
@@ -95,7 +99,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Show transaction history for 0x1234...",
-    icon: <Activity className="w-4 h-4" />
+    icon: <Activity className="w-4 h-4" />,
   },
   {
     id: 19,
@@ -105,7 +109,7 @@ const tools: Tool[] = [
     requiredParams: ["txHash"],
     optionalParams: [],
     example: "Is transaction 0xabc123... confirmed?",
-    icon: <Activity className="w-4 h-4" />
+    icon: <Activity className="w-4 h-4" />,
   },
 
   // Block Tools
@@ -117,7 +121,7 @@ const tools: Tool[] = [
     requiredParams: [],
     optionalParams: ["blockNumber"],
     example: "Show me block 18500000 details",
-    icon: <Blocks className="w-4 h-4" />
+    icon: <Blocks className="w-4 h-4" />,
   },
   {
     id: 6,
@@ -127,7 +131,7 @@ const tools: Tool[] = [
     requiredParams: [],
     optionalParams: [],
     example: "What's the latest block number?",
-    icon: <Blocks className="w-4 h-4" />
+    icon: <Blocks className="w-4 h-4" />,
   },
 
   // Gas & Network Tools
@@ -139,7 +143,7 @@ const tools: Tool[] = [
     requiredParams: [],
     optionalParams: [],
     example: "What's the current gas price?",
-    icon: <Fuel className="w-4 h-4" />
+    icon: <Fuel className="w-4 h-4" />,
   },
   {
     id: 18,
@@ -149,7 +153,7 @@ const tools: Tool[] = [
     requiredParams: [],
     optionalParams: [],
     example: "What are the recommended gas prices?",
-    icon: <Fuel className="w-4 h-4" />
+    icon: <Fuel className="w-4 h-4" />,
   },
   {
     id: 10,
@@ -159,7 +163,7 @@ const tools: Tool[] = [
     requiredParams: [],
     optionalParams: [],
     example: "What's the total ETH supply?",
-    icon: <Info className="w-4 h-4" />
+    icon: <Info className="w-4 h-4" />,
   },
 
   // Contract Tools
@@ -171,7 +175,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Get ABI for contract 0x1234...",
-    icon: <FileText className="w-4 h-4" />
+    icon: <FileText className="w-4 h-4" />,
   },
   {
     id: 16,
@@ -181,7 +185,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Show source code for contract 0x1234...",
-    icon: <FileText className="w-4 h-4" />
+    icon: <FileText className="w-4 h-4" />,
   },
   {
     id: 20,
@@ -191,7 +195,7 @@ const tools: Tool[] = [
     requiredParams: ["contractAddresses array"],
     optionalParams: [],
     example: "When was contract 0x1234... created?",
-    icon: <FileText className="w-4 h-4" />
+    icon: <FileText className="w-4 h-4" />,
   },
   {
     id: 21,
@@ -201,7 +205,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Is 0x1234... a contract or wallet?",
-    icon: <Shield className="w-4 h-4" />
+    icon: <Shield className="w-4 h-4" />,
   },
 
   // Token & Transfer Tools
@@ -213,7 +217,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Show token transfers for 0x1234...",
-    icon: <Coins className="w-4 h-4" />
+    icon: <Coins className="w-4 h-4" />,
   },
   {
     id: 14,
@@ -223,7 +227,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Show NFT transfers for 0x1234...",
-    icon: <Coins className="w-4 h-4" />
+    icon: <Coins className="w-4 h-4" />,
   },
   {
     id: 15,
@@ -233,7 +237,7 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Show internal txs for 0x1234...",
-    icon: <Activity className="w-4 h-4" />
+    icon: <Activity className="w-4 h-4" />,
   },
   {
     id: 17,
@@ -243,7 +247,7 @@ const tools: Tool[] = [
     requiredParams: ["contractAddress"],
     optionalParams: [],
     example: "Get info for token contract 0x1234...",
-    icon: <Info className="w-4 h-4" />
+    icon: <Info className="w-4 h-4" />,
   },
 
   // Utility Tools
@@ -255,18 +259,18 @@ const tools: Tool[] = [
     requiredParams: ["address"],
     optionalParams: [],
     example: "Is 0x1234... a valid address?",
-    icon: <Shield className="w-4 h-4" />
-  }
+    icon: <Shield className="w-4 h-4" />,
+  },
 ];
 
 const categories = [
   "Balance & Wallet",
-  "Transactions", 
+  "Transactions",
   "Blocks",
   "Gas & Network",
   "Smart Contracts",
   "Tokens & Transfers",
-  "Utilities"
+  "Utilities",
 ];
 
 interface ToolsGuideProps {
@@ -282,43 +286,43 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
   // Handle ESC key to close modal
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === "Escape" && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener("keydown", handleEscapeKey);
       // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscapeKey);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
   // Handle escape key to close modal
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === "Escape" && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
       // Prevent body scrolling when modal is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       // Ensure modal starts at top
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
@@ -355,26 +359,29 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
   };
 
   const getCategoryTools = (category: string) => {
-    return tools.filter(tool => tool.category === category);
+    return tools.filter((tool) => tool.category === category);
   };
 
   const getCategoryColor = (category: string) => {
     const colors = {
       "Balance & Wallet": "bg-blue-100 text-blue-800 border-blue-300",
-      "Transactions": "bg-green-100 text-green-800 border-green-300", 
-      "Blocks": "bg-purple-100 text-purple-800 border-purple-300",
+      Transactions: "bg-green-100 text-green-800 border-green-300",
+      Blocks: "bg-purple-100 text-purple-800 border-purple-300",
       "Gas & Network": "bg-orange-100 text-orange-800 border-orange-300",
       "Smart Contracts": "bg-red-100 text-red-800 border-red-300",
       "Tokens & Transfers": "bg-yellow-100 text-yellow-800 border-yellow-300",
-      "Utilities": "bg-gray-100 text-gray-800 border-gray-300"
+      Utilities: "bg-gray-100 text-gray-800 border-gray-300",
     };
-    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800 border-gray-300";
+    return (
+      colors[category as keyof typeof colors] ||
+      "bg-gray-100 text-gray-800 border-gray-300"
+    );
   };
 
   if (!isOpen) return null;
 
   const modalContent = (
-    <div 
+    <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] overflow-hidden"
       style={{ zIndex: 99999 }}
       onClick={handleBackdropClick}
@@ -389,7 +396,8 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
                     🛠️ Blockchain Analysis Tools Guide
                   </CardTitle>
                   <p className="text-blue-100 text-sm">
-                    Discover 21+ powerful tools for analyzing Arbitrum blockchain data
+                    Discover 21+ powerful tools for analyzing Arbitrum
+                    blockchain data
                   </p>
                 </div>
                 <Button
@@ -403,7 +411,7 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
                 </Button>
               </div>
             </CardHeader>
-        
+
             <CardContent className="p-6 bg-gray-50 max-h-[70vh] overflow-y-auto">
               <div className="bg-white rounded-lg p-4 mb-6 border border-blue-200 shadow-sm">
                 <h3 className="font-semibold text-blue-800 mb-3 flex items-center gap-2 text-lg">
@@ -411,20 +419,40 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
                 </h3>
                 <ul className="text-sm text-blue-700 space-y-2">
                   <li className="flex items-start gap-2">
-                    <span className="font-semibold text-blue-600 flex-shrink-0">•</span>
-                    <span><strong>Natural Language:</strong> Simply ask: "What's the balance of 0x1234...?"</span>
+                    <span className="font-semibold text-blue-600 flex-shrink-0">
+                      •
+                    </span>
+                    <span>
+                      <strong>Natural Language:</strong> Simply ask: "What's the
+                      balance of 0x1234...?"
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-semibold text-blue-600 flex-shrink-0">•</span>
-                    <span><strong>Copy Examples:</strong> Click the copy icon next to any example to use it directly</span>
+                    <span className="font-semibold text-blue-600 flex-shrink-0">
+                      •
+                    </span>
+                    <span>
+                      <strong>Copy Examples:</strong> Click the copy icon next
+                      to any example to use it directly
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-semibold text-blue-600 flex-shrink-0">•</span>
-                    <span><strong>Combine Requests:</strong> "Check balance and transaction history for 0x1234..."</span>
+                    <span className="font-semibold text-blue-600 flex-shrink-0">
+                      •
+                    </span>
+                    <span>
+                      <strong>Combine Requests:</strong> "Check balance and
+                      transaction history for 0x1234..."
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="font-semibold text-blue-600 flex-shrink-0">•</span>
-                    <span><strong>Real Data:</strong> Use actual addresses, transaction hashes, or contract addresses</span>
+                    <span className="font-semibold text-blue-600 flex-shrink-0">
+                      •
+                    </span>
+                    <span>
+                      <strong>Real Data:</strong> Use actual addresses,
+                      transaction hashes, or contract addresses
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -433,27 +461,44 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
                 {categories.map((category) => {
                   const categoryTools = getCategoryTools(category);
                   const isExpanded = expandedCategory === category;
-                  
+
                   return (
-                    <Collapsible key={category} open={isExpanded} onOpenChange={() => toggleCategory(category)}>
+                    <Collapsible
+                      key={category}
+                      open={isExpanded}
+                      onOpenChange={() => toggleCategory(category)}
+                    >
                       <CollapsibleTrigger asChild>
                         <Button
                           variant="ghost"
                           className="w-full justify-between p-4 h-auto hover:bg-blue-50 rounded-lg border-2 border-gray-200 hover:border-blue-300 bg-white shadow-sm transition-all duration-200"
                         >
                           <div className="flex items-center space-x-3">
-                            <Badge className={`${getCategoryColor(category)} font-medium px-3 py-1 text-sm`}>
+                            <Badge
+                              className={`${getCategoryColor(
+                                category
+                              )} font-medium px-3 py-1 text-sm`}
+                            >
                               {categoryTools.length} tools
                             </Badge>
-                            <span className="font-semibold text-gray-800 text-lg">{category}</span>
+                            <span className="font-semibold text-gray-800 text-lg">
+                              {category}
+                            </span>
                           </div>
-                          {isExpanded ? <ChevronDown className="w-5 h-5 text-blue-600 flex-shrink-0" /> : <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />}
+                          {isExpanded ? (
+                            <ChevronDown className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          )}
                         </Button>
                       </CollapsibleTrigger>
-                  
+
                       <CollapsibleContent className="mt-3 space-y-3">
                         {categoryTools.map((tool) => (
-                          <Card key={tool.id} className="ml-4 border-l-4 border-l-blue-400 bg-white shadow-md hover:shadow-lg transition-all duration-200">
+                          <Card
+                            key={tool.id}
+                            className="ml-4 border-l-4 border-l-blue-400 bg-white shadow-md hover:shadow-lg transition-all duration-200"
+                          >
                             <CardContent className="p-4">
                               <div className="flex items-start space-x-4">
                                 <div className="text-blue-600 mt-1 p-2 bg-blue-50 rounded-lg flex-shrink-0">
@@ -465,53 +510,79 @@ export default function ToolsGuide({ isOpen, onClose }: ToolsGuideProps) {
                                       {tool.name}
                                     </code>
                                     {tool.requiredParams.length > 0 && (
-                                      <Badge variant="outline" className="text-xs border-red-300 text-red-700 flex-shrink-0">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs border-red-300 text-red-700 flex-shrink-0"
+                                      >
                                         Required params
                                       </Badge>
                                     )}
                                   </div>
-                                  
+
                                   <p className="text-gray-700 mb-3 font-medium leading-relaxed text-sm">
                                     {tool.description}
                                   </p>
-                                  
+
                                   {tool.requiredParams.length > 0 && (
                                     <div className="mb-3">
-                                      <span className="text-xs font-semibold text-gray-600 block mb-1">Required:</span>
+                                      <span className="text-xs font-semibold text-gray-600 block mb-1">
+                                        Required:
+                                      </span>
                                       <div className="flex flex-wrap gap-1">
-                                        {tool.requiredParams.map((param, idx) => (
-                                          <code key={idx} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-mono">
-                                            {param}
-                                          </code>
-                                        ))}
+                                        {tool.requiredParams.map(
+                                          (param, idx) => (
+                                            <code
+                                              key={idx}
+                                              className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-mono"
+                                            >
+                                              {param}
+                                            </code>
+                                          )
+                                        )}
                                       </div>
                                     </div>
                                   )}
-                                  
+
                                   {tool.optionalParams.length > 0 && (
                                     <div className="mb-3">
-                                      <span className="text-xs font-semibold text-gray-600 block mb-1">Optional:</span>
+                                      <span className="text-xs font-semibold text-gray-600 block mb-1">
+                                        Optional:
+                                      </span>
                                       <div className="flex flex-wrap gap-1">
-                                        {tool.optionalParams.map((param, idx) => (
-                                          <code key={idx} className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-mono">
-                                            {param}
-                                          </code>
-                                        ))}
+                                        {tool.optionalParams.map(
+                                          (param, idx) => (
+                                            <code
+                                              key={idx}
+                                              className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-mono"
+                                            >
+                                              {param}
+                                            </code>
+                                          )
+                                        )}
                                       </div>
                                     </div>
                                   )}
-                                  
+
                                   <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg p-3 mt-3">
                                     <div className="flex items-start justify-between gap-3">
                                       <div className="flex-1 min-w-0">
-                                        <span className="text-xs font-semibold text-green-700 block mb-1">Example:</span>
-                                        <span className="text-sm text-green-600 font-medium italic break-words">"{tool.example}"</span>
+                                        <span className="text-xs font-semibold text-green-700 block mb-1">
+                                          Example:
+                                        </span>
+                                        <span className="text-sm text-green-600 font-medium italic break-words">
+                                          "{tool.example}"
+                                        </span>
                                       </div>
                                       <Button
                                         size="sm"
                                         variant="ghost"
                                         className="ml-2 h-8 w-8 p-0 hover:bg-green-100 flex-shrink-0 transition-all duration-200"
-                                        onClick={() => copyToClipboard(tool.example, tool.name)}
+                                        onClick={() =>
+                                          copyToClipboard(
+                                            tool.example,
+                                            tool.name
+                                          )
+                                        }
                                         title="Copy example to clipboard"
                                       >
                                         {copiedExample === tool.name ? (
