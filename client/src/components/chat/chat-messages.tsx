@@ -100,6 +100,15 @@ export default function ChatMessages() {
                     What would you like to explore today?
                   </p>
                   <div
+                    className="mt-3 p-3 rounded-lg"
+                    style={{ backgroundColor: "#f3f4f6", border: "1px solid #e5e7eb" }}  
+                  >
+                    <p className="text-sm font-medium" style={{ color: "#374151" }}>
+                      💡 <strong>Tip:</strong> I have access to 21+ blockchain analysis tools! 
+                      Click the <strong>"Tools Guide"</strong> button above to see what I can help you analyze.
+                    </p>
+                  </div>
+                  <div
                     className="flex items-center space-x-2 mt-3 text-xs font-medium"
                     style={{ color: "#374151" }}
                   >

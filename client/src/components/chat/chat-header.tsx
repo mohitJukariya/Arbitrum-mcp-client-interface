@@ -2,9 +2,11 @@ import { useChatStore, users } from "@/stores/chat-store";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, ArrowLeft, User, RefreshCw } from "lucide-react";
+import { BarChart3, ArrowLeft, User, RefreshCw, Wrench } from "lucide-react";
 import { Link } from "wouter";
 import HelpModal from "@/components/ui/help-modal";
+import ToolsGuide from "./tools-guide";
+import { useState } from "react";
 
 export default function ChatHeader() {
   const { 
@@ -14,6 +16,8 @@ export default function ChatHeader() {
     setSelectedUser,
     setSelectedPersonality 
   } = useChatStore();
+
+  const [showToolsGuide, setShowToolsGuide] = useState(false);
 
   // Use personality if available, fallback to user for backward compatibility
   const currentProfile = selectedPersonality || selectedUser;
@@ -138,6 +142,15 @@ export default function ChatHeader() {
         </div>
 
         <div className="flex items-center space-x-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-blue-600 hover:text-blue-700 border-blue-300 hover:border-blue-400 bg-blue-50 hover:bg-blue-100"
+            onClick={() => setShowToolsGuide(true)}
+          >
+            <Wrench className="h-4 w-4 mr-2" />
+            Tools Guide
+          </Button>
           <HelpModal />
           <Link href="/graph">
             <Button
@@ -160,6 +173,8 @@ export default function ChatHeader() {
           </Button>
         </div>
       </div>
+
+      <ToolsGuide isOpen={showToolsGuide} onClose={() => setShowToolsGuide(false)} />
     </div>
   );
 }

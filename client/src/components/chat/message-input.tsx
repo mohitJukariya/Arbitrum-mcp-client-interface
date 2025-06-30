@@ -197,7 +197,7 @@ Please check that the backend is running properly. In the meantime, the frontend
             <div className="relative group">
               <Textarea
                 ref={textareaRef}
-                placeholder="Ask the AI agent about blockchain analytics, gas prices, or market trends..."
+                placeholder="Try: 'What's the ETH balance of 0x...?' or 'Get transaction details for 0x...' - Click Tools Guide for all options"
                 className="resize-none pr-14 border-2 transition-all focus:ring-2 focus:ring-offset-0 rounded-xl shadow-lg"
                 style={{
                   background: "#ffffff",
