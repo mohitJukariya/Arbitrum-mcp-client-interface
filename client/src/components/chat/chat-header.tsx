@@ -1,14 +1,42 @@
 import { useChatStore, users } from "@/stores/chat-store";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BarChart3, ArrowLeft, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { BarChart3, ArrowLeft, User, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import HelpModal from "@/components/ui/help-modal";
 
 export default function ChatHeader() {
-  const { selectedUser, isTyping, setSelectedUser } = useChatStore();
+  const { 
+    selectedUser, 
+    selectedPersonality,
+    isTyping, 
+    setSelectedUser,
+    setSelectedPersonality 
+  } = useChatStore();
 
-  if (!selectedUser) return null;
+  // Use personality if available, fallback to user for backward compatibility
+  const currentProfile = selectedPersonality || selectedUser;
+  
+  if (!currentProfile) return null;
+
+  const getPersonalityColor = (personalityId?: string) => {
+    switch (personalityId) {
+      case 'alice':
+        return '#3b82f6'; // Blue
+      case 'bob':
+        return '#059669'; // Green
+      case 'charlie':
+        return '#dc2626'; // Red
+      default:
+        return 'hsl(var(--crypto-primary))';
+    }
+  };
+
+  const handleSwitchPersonality = () => {
+    setSelectedPersonality(null);
+    setSelectedUser(null);
+  };
 
   return (
     <div
@@ -24,28 +52,46 @@ export default function ChatHeader() {
         <div className="flex items-center space-x-4">
           <Avatar
             className="w-12 h-12 ring-2 ring-offset-2 ring-offset-transparent"
-            style={{ "--tw-ring-color": "hsl(var(--crypto-primary))" } as React.CSSProperties}
+            style={{ 
+              "--tw-ring-color": selectedPersonality 
+                ? getPersonalityColor(selectedPersonality.id)
+                : "hsl(var(--crypto-primary))" 
+            } as React.CSSProperties}
           >
             <AvatarImage
-              src={selectedUser.avatar}
-              alt={selectedUser.name}
+              src={currentProfile.avatar}
+              alt={currentProfile.name}
               className="object-cover"
             />
             <AvatarFallback
               className="font-semibold text-lg"
               style={{
-                backgroundColor: "hsl(var(--crypto-primary))",
+                backgroundColor: selectedPersonality 
+                  ? getPersonalityColor(selectedPersonality.id)
+                  : "hsl(var(--crypto-primary))",
                 color: "white",
               }}
             >
-              {selectedUser.name[0]}
+              {currentProfile.name[0]}
             </AvatarFallback>
           </Avatar>
           <div>
             <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {selectedUser.name}
+              {currentProfile.name}
             </h2>
             <div className="flex items-center space-x-2 mt-1">
+              {selectedPersonality && (
+                <Badge 
+                  variant="secondary" 
+                  className="text-xs"
+                  style={{ 
+                    backgroundColor: `${getPersonalityColor(selectedPersonality.id)}20`,
+                    color: getPersonalityColor(selectedPersonality.id)
+                  }}
+                >
+                  {selectedPersonality.title}
+                </Badge>
+              )}
               {isTyping ? (
                 <>
                   <div className="flex space-x-1">
@@ -80,7 +126,11 @@ export default function ChatHeader() {
                 </>
               ) : (
                 <span className="text-sm text-slate-400">
-                  Connected to AI agent
+                  {selectedPersonality ? (
+                    <>AI Assistant • {selectedPersonality.focusAreas}</>
+                  ) : (
+                    'Connected to AI agent'
+                  )}
                 </span>
               )}
             </div>
@@ -103,10 +153,10 @@ export default function ChatHeader() {
             variant="ghost"
             size="sm"
             className="text-slate-400 hover:text-white"
-            onClick={() => setSelectedUser(null)}
+            onClick={handleSwitchPersonality}
           >
-            <User className="h-4 w-4 mr-2" />
-            Switch User
+            <RefreshCw className="h-4 w-4 mr-2" />
+            {selectedPersonality ? 'Switch Assistant' : 'Switch User'}
           </Button>
         </div>
       </div>

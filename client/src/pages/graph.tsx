@@ -24,6 +24,7 @@ import { GraphNode } from "@/types/chat";
 export default function GraphPage() {
   const {
     selectedUser,
+    selectedPersonality, // NEW: Support personalities
     graphData,
     graphInsights,
     loadingGraph,
@@ -35,13 +36,16 @@ export default function GraphPage() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
 
+  // Use personality if available, fallback to user for backward compatibility
+  const currentProfile = selectedPersonality || selectedUser;
+
   useEffect(() => {
-    if (selectedUser && activeTab === "user") {
-      loadUserGraph(selectedUser.id);
+    if (currentProfile && activeTab === "user") {
+      loadUserGraph(currentProfile.id);
     } else if (activeTab === "global") {
       loadGlobalGraph();
     }
-  }, [selectedUser, activeTab, loadUserGraph, loadGlobalGraph]);
+  }, [currentProfile, activeTab, loadUserGraph, loadGlobalGraph]);
 
   const handleNodeClick = (node: GraphNode) => {
     setSelectedNode(node);
@@ -51,7 +55,7 @@ export default function GraphPage() {
     setHoveredNode(node);
   };
 
-  if (!selectedUser) {
+  if (!currentProfile) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
@@ -64,7 +68,7 @@ export default function GraphPage() {
           }}
         >
           <CardContent className="p-6 text-center">
-            <p className="text-slate-400 mb-4">Please select a user first</p>
+            <p className="text-slate-400 mb-4">Please select an assistant first</p>
             <Link href="/">
               <Button>Go to Chat</Button>
             </Link>
@@ -102,17 +106,17 @@ export default function GraphPage() {
             <div className="flex items-center space-x-3">
               <Avatar className="w-10 h-10">
                 <AvatarImage
-                  src={selectedUser.avatar}
-                  alt={selectedUser.name}
+                  src={currentProfile.avatar}
+                  alt={currentProfile.name}
                 />
-                <AvatarFallback>{selectedUser.name[0]}</AvatarFallback>
+                <AvatarFallback>{currentProfile.name[0]}</AvatarFallback>
               </Avatar>
               <div>
                 <h1 className="text-xl font-semibold text-white">
                   Context Graph
                 </h1>
                 <p className="text-sm text-slate-400">
-                  Conversation relationships and insights
+                  {selectedPersonality ? selectedPersonality.title : 'Conversation relationships and insights'}
                 </p>
               </div>
             </div>
@@ -166,7 +170,7 @@ export default function GraphPage() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <Eye className="w-5 h-5" />
                     {activeTab === "user"
-                      ? `${selectedUser.name}'s Network`
+                      ? `${currentProfile.name}'s Network`
                       : "Global Network"}
                   </CardTitle>
                 </CardHeader>
@@ -346,7 +350,7 @@ export default function GraphPage() {
                     className="w-full justify-start text-slate-400 hover:text-white"
                     onClick={() =>
                       activeTab === "user"
-                        ? loadUserGraph(selectedUser.id)
+                        ? loadUserGraph(currentProfile.id)
                         : loadGlobalGraph()
                     }
                   >

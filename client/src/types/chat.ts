@@ -6,6 +6,18 @@ export interface User {
   description?: string;
 }
 
+// New personality interface
+export interface UserPersonality {
+  id: string;              // "alice", "bob", "charlie"
+  name: string;            // "Alice"
+  title: string;           // "DeFi Trader & Gas Optimizer"
+  description: string;     // Brief description
+  avatar: string;          // "/avatars/alice.png"
+  expertise: string[];     // ["gas_optimization", "trading", ...]
+  focusAreas: string;      // "Gas prices, trading optimization"
+  status: 'online' | 'busy' | 'offline';
+}
+
 export interface ToolUsage {
   name: string;
   arguments?: any;
@@ -19,7 +31,21 @@ export interface ChatMessage {
   timestamp: string;
   toolsUsed?: (string | ToolUsage)[];
   confidence?: number;
+  personality?: string;  // NEW: personality that generated the response
   metadata?: {
+    contextUsed: boolean;
+    fallbackLevel: string;
+    originalError?: string;
+  };
+}
+
+export interface ChatResponse {
+  response: string;
+  toolsUsed: (string | ToolUsage)[];
+  sessionId: string;
+  confidence: number;
+  personality?: string;  // NEW: personality that generated the response
+  metadata: {
     contextUsed: boolean;
     fallbackLevel: string;
     originalError?: string;
@@ -56,17 +82,6 @@ export interface WhaleActivity {
   type: string;
   amount: string;
   timestamp: string;
-}
-
-export interface ChatResponse {
-  response: string;
-  toolsUsed: string[];
-  sessionId: string;
-  confidence: number;
-  metadata: {
-    contextUsed: boolean;
-    fallbackLevel: string;
-  };
 }
 
 export interface GraphNode {

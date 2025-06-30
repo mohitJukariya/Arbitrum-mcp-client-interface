@@ -1,11 +1,18 @@
 import { create } from 'zustand';
-import { User, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphInsights } from '@/types/chat';
-import { contextApi } from '@/lib/api';
+import { User, ChatMessage, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphInsights, UserPersonality } from '@/types/chat';
+import { contextApi, personalityApi } from '@/lib/api';
 
 interface ChatStore {
-  // Selected user
+  // Selected user (legacy support)
   selectedUser: User | null;
   setSelectedUser: (user: User | null) => void;
+
+  // NEW: Personality system
+  personalities: UserPersonality[];
+  selectedPersonality: UserPersonality | null;
+  setSelectedPersonality: (personality: UserPersonality | null) => void;
+  loadPersonalities: () => Promise<void>;
+  loadingPersonalities: boolean;
 
   // Messages
   messages: ChatMessage[];
@@ -74,9 +81,26 @@ export const users: User[] = [
 ];
 
 export const useChatStore = create<ChatStore>((set, get) => ({
-  // Selected user
+  // Selected user (legacy support)
   selectedUser: null,
   setSelectedUser: (user) => set({ selectedUser: user }),
+
+  // NEW: Personality system
+  personalities: [],
+  selectedPersonality: null,
+  setSelectedPersonality: (personality) => set({ selectedPersonality: personality }),
+  loadingPersonalities: false,
+  loadPersonalities: async () => {
+    set({ loadingPersonalities: true });
+    try {
+      const personalities = await personalityApi.getAllPersonalities();
+      set({ personalities });
+    } catch (error) {
+      console.error('Failed to load personalities:', error);
+    } finally {
+      set({ loadingPersonalities: false });
+    }
+  },
 
   // Messages
   messages: [],

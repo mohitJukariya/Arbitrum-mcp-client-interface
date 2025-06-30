@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import "./chat-override.css";
 
 export default function ChatMessages() {
-  const { messages, selectedUser, isTyping } = useChatStore();
+  const { messages, selectedUser, selectedPersonality, isTyping } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -19,8 +19,9 @@ export default function ChatMessages() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Welcome message
-  const showWelcomeMessage = messages.length === 0 && selectedUser;
+  // Welcome message - show if no messages and either personality or user is selected
+  const currentProfile = selectedPersonality || selectedUser;
+  const showWelcomeMessage = messages.length === 0 && currentProfile;
 
   return (
     <div
@@ -83,7 +84,7 @@ export default function ChatMessages() {
                     className="mb-3 leading-relaxed font-semibold chat-message-content"
                     style={{ color: "#000000" }}
                   >
-                    👋 Hello {selectedUser.name}! I'm your AI assistant for
+                    👋 Hello {currentProfile.name}! I'm your AI assistant for
                     Arbitrum blockchain analytics. I can help you with:
                   </p>
                   <ul
@@ -258,7 +259,7 @@ export default function ChatMessages() {
                     className="font-semibold message-sender"
                     style={{ color: "#111827" }}
                   >
-                    {selectedUser?.name}
+                    {currentProfile?.name}
                   </span>
                 </div>
                 <Card

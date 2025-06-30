@@ -14,6 +14,7 @@ export default function MessageInput() {
 
   const {
     selectedUser,
+    selectedPersonality, // NEW: Get selected personality
     currentSessionId,
     setCurrentSessionId,
     addMessage,
@@ -23,12 +24,15 @@ export default function MessageInput() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (messageText: string) => {
-      if (!selectedUser) throw new Error("No user selected");
+      // Use personality if available, fallback to user for backward compatibility
+      const currentProfile = selectedPersonality || selectedUser;
+      if (!currentProfile) throw new Error("No user or personality selected");
 
       return chatApi.sendMessage(
         messageText,
-        selectedUser.id,
-        currentSessionId || undefined
+        currentProfile.id,
+        currentSessionId || undefined,
+        selectedPersonality?.id // NEW: Include personalityId if available
       );
     },
     onMutate: async (messageText) => {
@@ -63,6 +67,7 @@ export default function MessageInput() {
             ? response.toolsUsed
             : [],
           confidence: response?.confidence || 0.8,
+          personality: response?.personality, // NEW: Include personality info
           metadata: response?.metadata || {
             contextUsed: false,
             fallbackLevel: "success-handler",
@@ -122,7 +127,9 @@ Please check that the backend is running properly. In the meantime, the frontend
   });
 
   const handleSendMessage = () => {
-    if (!message.trim() || !selectedUser || sendMessageMutation.isPending)
+    // Use personality if available, fallback to user for backward compatibility
+    const currentProfile = selectedPersonality || selectedUser;
+    if (!message.trim() || !currentProfile || sendMessageMutation.isPending)
       return;
 
     const messageText = message.trim();
@@ -156,7 +163,8 @@ Please check that the backend is running properly. In the meantime, the frontend
     adjustTextareaHeight();
   }, [message]);
 
-  if (!selectedUser) return null;
+  // Don't show input if neither personality nor user is selected
+  if (!selectedPersonality && !selectedUser) return null;
 
   return (
     <div
@@ -170,10 +178,15 @@ Please check that the backend is running properly. In the meantime, the frontend
     >
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center space-x-2 mb-3">
-          {selectedUser && (
+          {(selectedPersonality || selectedUser) && (
             <div className="flex items-center space-x-2 text-xs">
               <span style={{ color: "#374151", fontWeight: "600" }}>
-                Chatting as {selectedUser.name}
+                Chatting with {selectedPersonality ? selectedPersonality.name : selectedUser?.name}
+                {selectedPersonality && (
+                  <span style={{ color: "#6b7280", fontWeight: "400" }}>
+                    {" "}• {selectedPersonality.title}
+                  </span>
+                )}
               </span>
             </div>
           )}

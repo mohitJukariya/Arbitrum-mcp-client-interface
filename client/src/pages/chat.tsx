@@ -1,11 +1,21 @@
 import UserSelection from "@/components/chat/user-selection";
+import PersonalitySelection from "@/components/chat/personality-selection";
 import ChatHeader from "@/components/chat/chat-header";
 import ChatMessages from "@/components/chat/chat-messages";
 import MessageInput from "@/components/chat/message-input";
 import { useChatStore } from "@/stores/chat-store";
+import { UserPersonality } from "@/types/chat";
 
 export default function ChatPage() {
-  const { selectedUser } = useChatStore();
+  const { selectedUser, selectedPersonality, setSelectedPersonality } = useChatStore();
+
+  const handlePersonalitySelect = (personality: UserPersonality) => {
+    setSelectedPersonality(personality);
+  };
+
+  // Show personality selection if no personality is selected
+  // Use personality system by default, fallback to user selection for backward compatibility
+  const shouldShowSelection = !selectedPersonality && !selectedUser;
 
   return (
     <div
@@ -16,8 +26,8 @@ export default function ChatPage() {
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
-      {!selectedUser ? (
-        <UserSelection />
+      {shouldShowSelection ? (
+        <PersonalitySelection onPersonalitySelect={handlePersonalitySelect} />
       ) : (
         <>
           {/* Main Content */}

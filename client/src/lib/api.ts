@@ -1,4 +1,4 @@
-import { ChatResponse, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphInsights, SimilarConversation, ContextData, FailsafeStats, FailsafeResponse } from '@/types/chat';
+import { ChatResponse, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphInsights, SimilarConversation, ContextData, FailsafeStats, FailsafeResponse, UserPersonality } from '@/types/chat';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://mcpclient-production.up.railway.app';
@@ -43,12 +43,19 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
 }
 
 export const chatApi = {
-  sendMessage: async (message: string, userId: string, sessionId?: string): Promise<ChatResponse> => {
+  sendMessage: async (message: string, userId: string, sessionId?: string, personalityId?: string): Promise<ChatResponse> => {
     try {
-      console.log('Sending chat message:', { message, userId, sessionId });
+      console.log('Sending chat message:', { message, userId, sessionId, personalityId });
+      const requestBody: any = { message };
+      
+      // Add optional parameters
+      if (sessionId) requestBody.sessionId = sessionId;
+      if (userId) requestBody.userId = userId;
+      if (personalityId) requestBody.personalityId = personalityId;
+      
       const response = await apiRequest<any>('/api/chat', {
         method: 'POST',
-        body: JSON.stringify({ message }),
+        body: JSON.stringify(requestBody),
       });
       console.log('Chat API success:', response);
 
@@ -58,6 +65,7 @@ export const chatApi = {
         toolsUsed: [],
         sessionId: response.sessionId || sessionId || 'session-' + Date.now(),
         confidence: response.confidence || 0.8,
+        personality: response.personality, // NEW: Include personality in response
         metadata: response.metadata || { contextUsed: false, fallbackLevel: 'api-response' }
       };
 
@@ -117,6 +125,59 @@ This is a fallback response to ensure the frontend remains functional. Please ch
     } catch (error) {
       console.warn('Chat history API unavailable:', error);
       return [];
+    }
+  },
+};
+
+export const personalityApi = {
+  getAllPersonalities: async (): Promise<UserPersonality[]> => {
+    try {
+      return await apiRequest<UserPersonality[]>('/personalities');
+    } catch (error) {
+      console.warn('Using fallback personality data:', error);
+      // Fallback data that matches the new personality structure
+      return [
+        {
+          id: 'alice',
+          name: 'Alice',
+          title: 'DeFi Trader & Gas Optimizer',
+          description: 'Focuses on gas prices, trading optimization, and DeFi strategies',
+          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
+          expertise: ['gas_optimization', 'trading', 'defi', 'arbitrage'],
+          focusAreas: 'Gas prices, trading optimization',
+          status: 'online'
+        },
+        {
+          id: 'bob',
+          name: 'Bob',
+          title: 'Smart Contract Developer',
+          description: 'Expert in contract interactions, debugging, and ABIs',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+          expertise: ['smart_contracts', 'debugging', 'abi', 'solidity'],
+          focusAreas: 'Contract interactions, debugging, ABIs',
+          status: 'online'
+        },
+        {
+          id: 'charlie',
+          name: 'Charlie',
+          title: 'Blockchain Analyst & Whale Tracker',
+          description: 'Specializes in whale tracking and transaction analysis',
+          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+          expertise: ['whale_tracking', 'transaction_analysis', 'on_chain_analysis'],
+          focusAreas: 'Whale tracking, transaction analysis',
+          status: 'online'
+        }
+      ];
+    }
+  },
+
+  getPersonality: async (id: string): Promise<UserPersonality | null> => {
+    try {
+      return await apiRequest<UserPersonality>(`/personalities/${id}`);
+    } catch (error) {
+      console.warn('Personality API unavailable, using fallback:', error);
+      const personalities = await personalityApi.getAllPersonalities();
+      return personalities.find(p => p.id === id) || null;
     }
   },
 };
