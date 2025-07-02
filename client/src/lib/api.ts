@@ -1,7 +1,42 @@
-import { ChatResponse, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphInsights, SimilarConversation, ContextData, FailsafeStats, FailsafeResponse, UserPersonality } from '@/types/chat';
+import { ChatResponse, NetworkStats, GasPrice, TopContract, WhaleActivity, GraphVisualization, GraphNode, GraphEdge, GraphMetadata, GraphInsights, SimilarConversation, ContextData, FailsafeStats, FailsafeResponse, UserPersonality } from '@/types/chat';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://mcpclient-production.up.railway.app';
+
+// Helper functions to extract data from chat responses
+function extractAddressesFromResponse(response: string): string[] {
+  const addressPattern = /0x[a-fA-F0-9]{40}/g;
+  const matches = response.match(addressPattern);
+  return matches ? Array.from(new Set(matches)) : [];
+}
+
+function extractInsightsFromResponse(response: string): Array<{ content: string, confidence: number }> {
+  // Simple insight extraction - can be enhanced
+  const insights: Array<{ content: string, confidence: number }> = [];
+
+  if (response.toLowerCase().includes('balance')) {
+    insights.push({
+      content: 'User interested in balance checking',
+      confidence: 0.8
+    });
+  }
+
+  if (response.toLowerCase().includes('gas')) {
+    insights.push({
+      content: 'User interested in gas optimization',
+      confidence: 0.8
+    });
+  }
+
+  if (response.toLowerCase().includes('transaction')) {
+    insights.push({
+      content: 'User interested in transaction analysis',
+      confidence: 0.7
+    });
+  }
+
+  return insights;
+}
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -88,6 +123,42 @@ export const chatApi = {
       }
 
       console.log('Normalized response:', normalizedResponse);
+
+      // Store context data to backend after successful chat response
+      try {
+        console.log('=== STORING CONTEXT DATA ===');
+        console.log('User ID:', userId);
+        console.log('Query:', message);
+        console.log('Tools used:', normalizedResponse.toolsUsed);
+        console.log('Addresses:', extractAddressesFromResponse(normalizedResponse.response));
+        console.log('Insights:', extractInsightsFromResponse(normalizedResponse.response));
+
+        const contextPayload = {
+          query: message,
+          toolsUsed: normalizedResponse.toolsUsed || [],
+          addressesInvolved: extractAddressesFromResponse(normalizedResponse.response),
+          insights: extractInsightsFromResponse(normalizedResponse.response),
+          metadata: {
+            sessionId: normalizedResponse.sessionId,
+            timestamp: new Date().toISOString(),
+            confidence: normalizedResponse.confidence,
+            personality: normalizedResponse.personality
+          }
+        };
+
+        console.log('Context payload being sent:', contextPayload);
+
+        const contextResult = await contextApi.storeUserContext(userId, contextPayload);
+        console.log('Context storage result:', contextResult);
+        console.log('=== CONTEXT STORED SUCCESSFULLY ===');
+      } catch (contextError) {
+        console.error('=== CONTEXT STORAGE FAILED ===');
+        console.error('Error:', contextError);
+        console.error('User ID:', userId);
+        console.error('Message:', message);
+        // Continue anyway - context storage failure shouldn't break chat
+      }
+
       return normalizedResponse;
     } catch (error) {
       console.error('Chat API error details:', error);
@@ -142,7 +213,7 @@ export const personalityApi = {
           name: 'Alice',
           title: 'DeFi Trader & Gas Optimizer',
           description: 'Focuses on gas prices, trading optimization, and DeFi strategies',
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b6e3f4',
           expertise: ['gas_optimization', 'trading', 'defi', 'arbitrage'],
           focusAreas: 'Gas prices, trading optimization',
           status: 'online'
@@ -152,7 +223,7 @@ export const personalityApi = {
           name: 'Bob',
           title: 'Smart Contract Developer',
           description: 'Expert in contract interactions, debugging, and ABIs',
-          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob&backgroundColor=c084fc',
           expertise: ['smart_contracts', 'debugging', 'abi', 'solidity'],
           focusAreas: 'Contract interactions, debugging, ABIs',
           status: 'online'
@@ -162,7 +233,7 @@ export const personalityApi = {
           name: 'Charlie',
           title: 'Blockchain Analyst & Whale Tracker',
           description: 'Specializes in whale tracking and transaction analysis',
-          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=fbbf24',
           expertise: ['whale_tracking', 'transaction_analysis', 'on_chain_analysis'],
           focusAreas: 'Whale tracking, transaction analysis',
           status: 'online'
@@ -185,44 +256,376 @@ export const personalityApi = {
 export const contextApi = {
   getGraphVisualization: async (userId?: string): Promise<GraphVisualization> => {
     try {
-      const endpoint = userId ? `/context/graph/visualization/${userId}` : '/context/graph/visualization';
-      return await apiRequest<GraphVisualization>(endpoint);
+      const endpoint = userId
+        ? `/api/context/graph/visualization?userId=${userId}`
+        : '/api/context/graph/visualization';
+      console.log('=== FETCHING GRAPH VISUALIZATION ===');
+      console.log('Endpoint:', endpoint);
+      console.log('User ID:', userId || 'global');
+
+      const response = await apiRequest<GraphVisualization>(endpoint);
+      console.log('=== GRAPH API RESPONSE ===');
+      console.log('Response:', response);
+      console.log('Nodes:', response.nodes?.length || 0);
+      console.log('Edges:', response.edges?.length || 0);
+      console.log('Metadata:', response.metadata);
+      return response;
     } catch (error) {
-      console.warn('Using fallback graph data:', error);
+      console.warn('=== GRAPH API FAILED, USING FALLBACK ===');
+      console.warn('Error:', error);
+      console.warn('User ID:', userId || 'global');
 
-      // For user-specific graphs, filter to show only relevant nodes and edges
-      if (userId) {
-        const filteredNodes = fallbackData.graphVisualization.nodes.filter(node =>
-          node.id === userId || node.type !== 'user' // Keep the selected user and all non-user nodes (tools, queries, etc.)
-        );
+      // Enhanced fallback data with backend API structure that differs by user
+      const fallbackNodes: GraphNode[] = [];
+      const fallbackEdges: GraphEdge[] = [];
 
-        // Get all node IDs that exist after filtering
-        const nodeIds = new Set(filteredNodes.map(node => node.id));
-
-        // Filter edges to only include connections between existing nodes
-        const filteredEdges = fallbackData.graphVisualization.edges.filter(edge =>
-          nodeIds.has(edge.from) && nodeIds.has(edge.to)
-        );
-
-        return {
-          ...fallbackData.graphVisualization,
-          nodes: filteredNodes,
-          edges: filteredEdges,
-          metadata: {
-            totalNodes: filteredNodes.length,
-            totalEdges: filteredEdges.length
+      if (userId === 'alice') {
+        // Alice-specific graph (DeFi Trader)
+        fallbackNodes.push(
+          {
+            id: "alice",
+            label: "Alice (Trader)",
+            type: "user",
+            properties: {
+              id: "alice",
+              name: "Alice (Trader)",
+              role: "trader",
+              lastActivity: new Date().toISOString()
+            },
+            size: 40,
+            color: "#2196F3"
+          },
+          {
+            id: "alice-query-gas",
+            label: "What's the current gas price?",
+            type: "query",
+            properties: {
+              id: "alice-query-gas",
+              content: "What's the current gas price?",
+              timestamp: new Date().toISOString(),
+              confidence: 0.9
+            },
+            size: 25,
+            color: "#4CAF50"
+          },
+          {
+            id: "tool-gas-tracker",
+            label: "Gas Price Tracker",
+            type: "tool",
+            properties: {
+              id: "tool-gas-tracker",
+              name: "Gas Price Tracker",
+              category: "defi"
+            },
+            size: 30,
+            color: "#FF5722"
+          },
+          {
+            id: "insight-gas-optimization",
+            label: "Gas optimization strategy",
+            type: "insight",
+            properties: {
+              id: "insight-gas-optimization",
+              content: "Gas optimization strategy for DeFi trades",
+              confidence: 0.85
+            },
+            size: 20,
+            color: "#9C27B0"
           }
-        };
+        );
+
+        fallbackEdges.push(
+          {
+            id: "alice-to-query-gas",
+            from: "alice",
+            to: "alice-query-gas",
+            label: "asked",
+            type: "QUERIES",
+            weight: 1.0,
+            color: "#4CAF50"
+          },
+          {
+            id: "query-gas-to-tool",
+            from: "alice-query-gas",
+            to: "tool-gas-tracker",
+            label: "used",
+            type: "USED_TOOL",
+            weight: 1.0,
+            color: "#FF5722"
+          },
+          {
+            id: "query-to-insight",
+            from: "alice-query-gas",
+            to: "insight-gas-optimization",
+            label: "learned",
+            type: "GENERATED_INSIGHT",
+            weight: 1.0,
+            color: "#9C27B0"
+          }
+        );
+      } else if (userId === 'bob') {
+        // Bob-specific graph (Smart Contract Developer)
+        fallbackNodes.push(
+          {
+            id: "bob",
+            label: "Bob (Developer)",
+            type: "user",
+            properties: {
+              id: "bob",
+              name: "Bob (Developer)",
+              role: "developer",
+              lastActivity: new Date().toISOString()
+            },
+            size: 40,
+            color: "#2196F3"
+          },
+          {
+            id: "bob-query-debug",
+            label: "Help me debug this contract",
+            type: "query",
+            properties: {
+              id: "bob-query-debug",
+              content: "Help me debug this contract",
+              timestamp: new Date().toISOString(),
+              confidence: 0.95
+            },
+            size: 25,
+            color: "#4CAF50"
+          },
+          {
+            id: "tool-contract-analyzer",
+            label: "Contract Analyzer",
+            type: "tool",
+            properties: {
+              id: "tool-contract-analyzer",
+              name: "Contract Analyzer",
+              category: "development"
+            },
+            size: 30,
+            color: "#FF5722"
+          },
+          {
+            id: "address-contract-001",
+            label: "0x1234...5678",
+            type: "address",
+            properties: {
+              id: "address-contract-001",
+              address: "0x1234567890abcdef1234567890abcdef12345678",
+              type: "contract"
+            },
+            size: 15,
+            color: "#607D8B"
+          }
+        );
+
+        fallbackEdges.push(
+          {
+            id: "bob-to-query-debug",
+            from: "bob",
+            to: "bob-query-debug",
+            label: "asked",
+            type: "QUERIES",
+            weight: 1.0,
+            color: "#4CAF50"
+          },
+          {
+            id: "query-debug-to-tool",
+            from: "bob-query-debug",
+            to: "tool-contract-analyzer",
+            label: "used",
+            type: "USED_TOOL",
+            weight: 1.0,
+            color: "#FF5722"
+          },
+          {
+            id: "query-to-address",
+            from: "bob-query-debug",
+            to: "address-contract-001",
+            label: "involves",
+            type: "INVOLVES_ADDRESS",
+            weight: 1.0,
+            color: "#607D8B"
+          }
+        );
+      } else if (userId === 'charlie') {
+        // Charlie-specific graph (Blockchain Analyst)
+        fallbackNodes.push(
+          {
+            id: "charlie",
+            label: "Charlie (Analyst)",
+            type: "user",
+            properties: {
+              id: "charlie",
+              name: "Charlie (Analyst)",
+              role: "analyst",
+              lastActivity: new Date().toISOString()
+            },
+            size: 40,
+            color: "#2196F3"
+          },
+          {
+            id: "charlie-query-whale",
+            label: "Show me recent whale activity",
+            type: "query",
+            properties: {
+              id: "charlie-query-whale",
+              content: "Show me recent whale activity",
+              timestamp: new Date().toISOString(),
+              confidence: 0.9
+            },
+            size: 25,
+            color: "#4CAF50"
+          },
+          {
+            id: "tool-whale-tracker",
+            label: "Whale Tracker",
+            type: "tool",
+            properties: {
+              id: "tool-whale-tracker",
+              name: "Whale Tracker",
+              category: "analytics"
+            },
+            size: 30,
+            color: "#FF5722"
+          },
+          {
+            id: "pattern-whale-behavior",
+            label: "Whale accumulation pattern",
+            type: "pattern",
+            properties: {
+              id: "pattern-whale-behavior",
+              content: "Large addresses accumulating tokens",
+              confidence: 0.8
+            },
+            size: 25,
+            color: "#FF9800"
+          }
+        );
+
+        fallbackEdges.push(
+          {
+            id: "charlie-to-query-whale",
+            from: "charlie",
+            to: "charlie-query-whale",
+            label: "asked",
+            type: "QUERIES",
+            weight: 1.0,
+            color: "#4CAF50"
+          },
+          {
+            id: "query-whale-to-tool",
+            from: "charlie-query-whale",
+            to: "tool-whale-tracker",
+            label: "used",
+            type: "USED_TOOL",
+            weight: 1.0,
+            color: "#FF5722"
+          },
+          {
+            id: "query-to-pattern",
+            from: "charlie-query-whale",
+            to: "pattern-whale-behavior",
+            label: "pattern",
+            type: "LEARNED_PATTERN",
+            weight: 1.0,
+            color: "#FF9800"
+          }
+        );
+      } else {
+        // Default fallback for unknown users or global view
+        fallbackNodes.push(
+          {
+            id: "user-001",
+            label: "Alice (Trader)",
+            type: "user",
+            properties: {
+              id: "user-001",
+              name: "Alice (Trader)",
+              role: "trader",
+              lastActivity: new Date().toISOString()
+            },
+            size: 40,
+            color: "#2196F3"
+          },
+          {
+            id: "ctx-fallback-query",
+            label: "What's the balance of 0x123...?",
+            type: "query",
+            properties: {
+              id: "ctx-fallback-query",
+              content: "What's the balance of 0x123...?",
+              timestamp: new Date().toISOString(),
+              confidence: 0.9
+            },
+            size: 25,
+            color: "#4CAF50"
+          },
+          {
+            id: "tool-getBalance",
+            label: "getBalance",
+            type: "tool",
+            properties: {
+              id: "tool-getBalance",
+              name: "getBalance",
+              category: "balance"
+            },
+            size: 30,
+            color: "#FF5722"
+          }
+        );
+
+        fallbackEdges.push(
+          {
+            id: "user-001-ctx-fallback-query",
+            from: "user-001",
+            to: "ctx-fallback-query",
+            label: "asked",
+            type: "QUERIES",
+            weight: 1.0,
+            color: "#4CAF50"
+          },
+          {
+            id: "ctx-fallback-query-tool-getBalance",
+            from: "ctx-fallback-query",
+            to: "tool-getBalance",
+            label: "used",
+            type: "USED_TOOL",
+            weight: 1.0,
+            color: "#FF5722"
+          }
+        );
       }
 
-      // For global graph, return all data
-      return fallbackData.graphVisualization;
+      const fallbackMetadata: GraphMetadata = {
+        totalNodes: fallbackNodes.length,
+        totalEdges: fallbackEdges.length,
+        userCount: fallbackNodes.filter(n => n.type === 'user').length,
+        toolCount: fallbackNodes.filter(n => n.type === 'tool').length,
+        queryCount: fallbackNodes.filter(n => n.type === 'query').length,
+        insightCount: fallbackNodes.filter(n => n.type === 'insight').length,
+        addressCount: fallbackNodes.filter(n => n.type === 'address').length,
+        generatedAt: new Date().toISOString(),
+        userId: userId || 'global',
+        isFallbackData: true  // Add flag to indicate this is fallback data
+      };
+
+      console.log('=== USING FALLBACK DATA ===');
+      console.log('User:', userId || 'global');
+      console.log('Nodes:', fallbackNodes.length);
+      console.log('Edges:', fallbackEdges.length);
+      console.log('Fallback nodes:', fallbackNodes.map(n => ({ id: n.id, type: n.type, label: n.label })));
+
+      return {
+        nodes: fallbackNodes,
+        edges: fallbackEdges,
+        metadata: fallbackMetadata
+      };
     }
   },
 
   getGraphInsights: async (userId: string): Promise<GraphInsights> => {
     try {
-      return await apiRequest<GraphInsights>(`/context/graph/insights/${userId}`);
+      return await apiRequest<GraphInsights>(`/api/context/graph/insights/${userId}`);
     } catch (error) {
       console.warn('Using fallback insights data:', error);
       return fallbackData.graphInsights;
@@ -244,6 +647,32 @@ export const contextApi = {
     return apiRequest(`/context/storage/kv/${key}`, {
       method: 'DELETE',
     });
+  },
+
+  // Store user context data after chat interactions
+  storeUserContext: async (userId: string, contextData: {
+    query: string;
+    toolsUsed?: Array<{
+      name: string;
+      parameters?: Record<string, any>;
+      result?: any;
+    }>;
+    addressesInvolved?: string[];
+    insights?: Array<{
+      content: string;
+      confidence: number;
+    }>;
+    metadata?: Record<string, any>;
+  }) => {
+    try {
+      return await apiRequest(`/api/context/users/${userId}/context`, {
+        method: 'POST',
+        body: JSON.stringify(contextData),
+      });
+    } catch (error) {
+      console.warn('Failed to store context data:', error);
+      throw error;
+    }
   },
 };
 

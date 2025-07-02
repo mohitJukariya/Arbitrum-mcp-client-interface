@@ -56,7 +56,7 @@ const tools: Tool[] = [
     category: "Balance & Wallet",
     requiredParams: ["contractAddress", "address"],
     optionalParams: [],
-    example: "Check USDC balance for address 0x1234...",
+    example: "Check token balance for token contract address 0xaf88d065e77c8cC2239327C5EDb3A432268e5831 for address 0x1234...",
     icon: <Coins className="w-4 h-4" />,
   },
   {

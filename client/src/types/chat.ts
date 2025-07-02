@@ -87,27 +87,39 @@ export interface WhaleActivity {
 export interface GraphNode {
   id: string;
   label: string;
-  type: string;
+  type: 'user' | 'query' | 'tool' | 'insight' | 'address' | 'pattern' | 'other';
+  properties: Record<string, any>;  // NEW: Full properties from backend
   size: number;
   color: string;
 }
 
 export interface GraphEdge {
+  id: string;                       // NEW: Unique edge ID from backend
   from: string;
   to: string;
   label: string;
+  type: 'QUERIES' | 'USED_TOOL' | 'GENERATED_INSIGHT' | 'INVOLVES_ADDRESS' | 'RELATED_TO' | 'LEARNED_PATTERN' | 'HAS_QUERY';
   weight: number;
-  color?: string;
+  color: string;
+}
+
+export interface GraphMetadata {
+  totalNodes: number;
+  totalEdges: number;
+  userCount: number;
+  toolCount: number;
+  queryCount: number;
+  insightCount: number;
+  addressCount: number;
+  generatedAt: string;
+  userId: string;
+  isFallbackData?: boolean;  // Optional flag to indicate fallback data
 }
 
 export interface GraphVisualization {
   nodes: GraphNode[];
   edges: GraphEdge[];
-  layout: 'force' | 'hierarchical';
-  metadata: {
-    totalNodes: number;
-    totalEdges: number;
-  };
+  metadata: GraphMetadata;          // NEW: Enhanced metadata
 }
 
 export interface GraphInsights {

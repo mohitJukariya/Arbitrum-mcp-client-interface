@@ -186,6 +186,7 @@ export default function GraphPage() {
                       <GraphVisualization
                         nodes={graphData.nodes}
                         edges={graphData.edges}
+                        metadata={graphData.metadata}
                         onNodeClick={handleNodeClick}
                         onNodeHover={handleNodeHover}
                         width={800}
@@ -230,7 +231,12 @@ export default function GraphPage() {
                         {graphData.metadata.totalNodes} nodes,{" "}
                         {graphData.metadata.totalEdges} edges
                       </span>
-                      <span>Layout: {graphData.layout}</span>
+                      <span>
+                        Type:{" "}
+                        {graphData.metadata.userId === "global"
+                          ? "Global View"
+                          : "User View"}
+                      </span>
                     </div>
                   )}
                 </CardContent>
@@ -253,19 +259,53 @@ export default function GraphPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4">
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div>
                         <div className="text-xs text-slate-400">Label</div>
-                        <div className="text-white">{selectedNode.label}</div>
+                        <div className="text-white font-medium">
+                          {selectedNode.label}
+                        </div>
                       </div>
                       <div>
                         <div className="text-xs text-slate-400">Type</div>
-                        <Badge variant="secondary">{selectedNode.type}</Badge>
+                        <Badge variant="secondary" className="capitalize">
+                          {selectedNode.type}
+                        </Badge>
                       </div>
                       <div>
-                        <div className="text-xs text-slate-400">Size</div>
-                        <div className="text-white">{selectedNode.size}</div>
+                        <div className="text-xs text-slate-400">ID</div>
+                        <div className="text-white text-xs font-mono">
+                          {selectedNode.id}
+                        </div>
                       </div>
+
+                      {/* Show node properties from backend */}
+                      {selectedNode.properties &&
+                        Object.keys(selectedNode.properties).length > 0 && (
+                          <div>
+                            <div className="text-xs text-slate-400 mb-2">
+                              Properties
+                            </div>
+                            <div className="space-y-1 max-h-32 overflow-y-auto">
+                              {Object.entries(selectedNode.properties).map(
+                                ([key, value]) => (
+                                  <div key={key} className="text-xs">
+                                    <span className="text-slate-500">
+                                      {key}:
+                                    </span>
+                                    <span className="text-white ml-2">
+                                      {typeof value === "string"
+                                        ? value.length > 30
+                                          ? value.substring(0, 30) + "..."
+                                          : value
+                                        : JSON.stringify(value)}
+                                    </span>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
                     </div>
                   </CardContent>
                 </Card>
