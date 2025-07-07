@@ -674,6 +674,33 @@ export const contextApi = {
       throw error;
     }
   },
+
+  // Clear database endpoint
+  clearDatabase: async (): Promise<{
+    success: boolean;
+    message: string;
+    stats?: { nodesRemoved: number; relationshipsRemoved: number };
+    timestamp: string;
+  }> => {
+    try {
+      console.log('=== CLEARING DATABASE ===');
+      const response = await apiRequest<{
+        success: boolean;
+        message: string;
+        stats?: { nodesRemoved: number; relationshipsRemoved: number };
+        timestamp: string;
+      }>('/api/context/database/clear', {
+        method: 'DELETE',
+      });
+      console.log('=== DATABASE CLEARED SUCCESSFULLY ===');
+      console.log('Result:', response);
+      return response;
+    } catch (error) {
+      console.error('=== DATABASE CLEAR FAILED ===');
+      console.error('Error:', error);
+      throw error;
+    }
+  },
 };
 
 export const embeddingsApi = {

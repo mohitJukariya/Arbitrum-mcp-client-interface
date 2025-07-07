@@ -6,6 +6,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import {
   ArrowLeft,
   Share2,
   Download,
@@ -15,11 +27,13 @@ import {
   Eye,
   Zap,
   TrendingUp,
+  Trash2,
 } from "lucide-react";
 import { Link } from "wouter";
 import GraphVisualization from "@/components/ui/graph-visualization";
 import LoadingSkeleton from "@/components/ui/loading-skeleton";
 import { GraphNode } from "@/types/chat";
+import { contextApi } from "@/lib/api";
 
 export default function GraphPage() {
   const {
@@ -35,9 +49,48 @@ export default function GraphPage() {
   const [activeTab, setActiveTab] = useState("user");
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [isClearing, setIsClearing] = useState(false);
+  const { toast } = useToast();
 
   // Use personality if available, fallback to user for backward compatibility
   const currentProfile = selectedPersonality || selectedUser;
+
+  // Determine if we should show the clear database button
+  // Show it when there are more than 10 nodes (indicating substantial data)
+  const shouldShowClearButton = graphData && graphData.nodes && graphData.nodes.length > 10;
+
+  const handleClearDatabase = async () => {
+    setIsClearing(true);
+    try {
+      const result = await contextApi.clearDatabase();
+      if (result.success) {
+        toast({
+          title: "Database Cleared Successfully! 🗑️",
+          description: `${result.message} Stats: ${result.stats?.nodesRemoved || 0} nodes and ${result.stats?.relationshipsRemoved || 0} relationships removed.`,
+          duration: 5000,
+        });
+        
+        // Refresh the graph data after clearing
+        if (activeTab === "user" && currentProfile) {
+          loadUserGraph(currentProfile.id);
+        } else if (activeTab === "global") {
+          loadGlobalGraph();
+        }
+      } else {
+        throw new Error(result.message || "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Failed to clear database:", error);
+      toast({
+        title: "Failed to Clear Database ❌",
+        description: `Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`,
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   useEffect(() => {
     if (currentProfile && activeTab === "user") {
@@ -127,6 +180,72 @@ export default function GraphPage() {
           </div>
 
           <div className="flex items-center space-x-2">
+            {/* Clear Database Button - Show only when there's substantial data */}
+            {shouldShowClearButton && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-400 hover:text-red-300 border-red-400/30 hover:border-red-300/50 hover:bg-red-500/10"
+                    disabled={isClearing}
+                  >
+                    {isClearing ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 mr-2" />
+                    )}
+                    {isClearing ? "Clearing..." : "Clear Memory"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent
+                  style={{
+                    backgroundColor: "hsl(var(--crypto-card))",
+                    borderColor: "hsl(var(--crypto-border))",
+                  }}
+                >
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-red-400 flex items-center gap-2">
+                      ⚠️ Clear Database Confirmation
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-slate-300">
+                      This will permanently delete all stored conversation history, user contexts, and relationship data from the Neo4j database.
+                      <br /><br />
+                      <strong className="text-red-300">This action cannot be undone.</strong>
+                      <br /><br />
+                      Current database contains: <strong>{graphData?.metadata?.totalNodes || 0} nodes</strong> and <strong>{graphData?.metadata?.totalEdges || 0} relationships</strong>.
+                      <br /><br />
+                      Are you sure you want to proceed?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel 
+                      className="bg-slate-600 hover:bg-slate-500 text-white border-slate-500"
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleClearDatabase}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                      disabled={isClearing}
+                    >
+                      {isClearing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Clearing...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Yes, Clear Database
+                        </>
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            
             <Button
               variant="ghost"
               size="sm"
