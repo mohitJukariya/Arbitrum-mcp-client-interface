@@ -57,7 +57,8 @@ export default function GraphPage() {
 
   // Determine if we should show the clear database button
   // Show it when there are more than 10 nodes (indicating substantial data)
-  const shouldShowClearButton = graphData && graphData.nodes && graphData.nodes.length > 10;
+  const shouldShowClearButton =
+    graphData && graphData.nodes && graphData.nodes.length > 10;
 
   const handleClearDatabase = async () => {
     setIsClearing(true);
@@ -66,10 +67,14 @@ export default function GraphPage() {
       if (result.success) {
         toast({
           title: "Database Cleared Successfully! 🗑️",
-          description: `${result.message} Stats: ${result.stats?.nodesRemoved || 0} nodes and ${result.stats?.relationshipsRemoved || 0} relationships removed.`,
+          description: `${result.message} Stats: ${
+            result.stats?.nodesRemoved || 0
+          } nodes and ${
+            result.stats?.relationshipsRemoved || 0
+          } relationships removed.`,
           duration: 5000,
         });
-        
+
         // Refresh the graph data after clearing
         if (activeTab === "user" && currentProfile) {
           loadUserGraph(currentProfile.id);
@@ -83,7 +88,9 @@ export default function GraphPage() {
       console.error("Failed to clear database:", error);
       toast({
         title: "Failed to Clear Database ❌",
-        description: `Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`,
+        description: `Error: ${
+          error instanceof Error ? error.message : "Unknown error occurred"
+        }`,
         variant: "destructive",
         duration: 5000,
       });
@@ -209,19 +216,32 @@ export default function GraphPage() {
                       ⚠️ Clear Database Confirmation
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-slate-300">
-                      This will permanently delete all stored conversation history, user contexts, and relationship data from the Neo4j database.
-                      <br /><br />
-                      <strong className="text-red-300">This action cannot be undone.</strong>
-                      <br /><br />
-                      Current database contains: <strong>{graphData?.metadata?.totalNodes || 0} nodes</strong> and <strong>{graphData?.metadata?.totalEdges || 0} relationships</strong>.
-                      <br /><br />
+                      This will permanently delete all stored conversation
+                      history, user contexts, and relationship data from the
+                      Neo4j database.
+                      <br />
+                      <br />
+                      <strong className="text-red-300">
+                        This action cannot be undone.
+                      </strong>
+                      <br />
+                      <br />
+                      Current database contains:{" "}
+                      <strong>
+                        {graphData?.metadata?.totalNodes || 0} nodes
+                      </strong>{" "}
+                      and{" "}
+                      <strong>
+                        {graphData?.metadata?.totalEdges || 0} relationships
+                      </strong>
+                      .
+                      <br />
+                      <br />
                       Are you sure you want to proceed?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel 
-                      className="bg-slate-600 hover:bg-slate-500 text-white border-slate-500"
-                    >
+                    <AlertDialogCancel className="bg-slate-600 hover:bg-slate-500 text-white border-slate-500">
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
@@ -245,7 +265,7 @@ export default function GraphPage() {
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            
+
             <Button
               variant="ghost"
               size="sm"
